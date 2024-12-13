@@ -713,3 +713,74 @@ class Boards():
         else: 
             raise ValueError("Invalid date or time. Date or time provided did not meet requirements or fall into the valid date/time range.")
         
+    def _get_stat_board_details(self, tiploc, filter, rows, time, date: str = None) -> list | str:
+        if date is None:
+            new_date = (datetime.now()).strftime("%Y/%m/%d")
+
+        else:
+            new_date = date
+
+        if time is None:
+            new_time = (datetime.now()).strftime("%H%M")
+
+        else:
+            new_time = time
+
+        if self.__complexity == "c" or (validate_date(new_date) and validate_time(new_time)):
+            search_query = "https://api.rtt.io/api/v1/json/search/" + str(tiploc)
+
+            if filter is not None:
+                search_query += "/to/" + str(filter)
+
+            if date is not None:
+                search_query +=  "/" + str(date)
+
+            if time is not None:
+                search_query += "/" + str(time)
+
+            departure_query = search_query
+            arrival_query = search_query + "/arrivals"
+
+            dep_api_response =  requests.get(departure_query, auth = (self.__username, self.__password))
+            arr_api_response =  requests.get(arrival_query, auth = (self.__username, self.__password))
+
+            if dep_api_response.status_code == 200 and arr_api_response.status_code == 200:
+                departures_data = dep_api_response.json()
+                arrivals_data = arr_api_response.json()
+
+                if departures_data["services"] == None or arrivals_data["services"] == None:
+                    raise ValueError("No data found.")
+                
+                if self.__complexity == "c":
+                    split_date = new_date.split("/")
+                    dep_file_name = tiploc + "_on_" + split_date[0] + "." + split_date[1] + "." + split_date[2] + "_dep_board_data"
+                    arr_file_name = tiploc + "_on_" + split_date[0] + "." + split_date[1] + "." + split_date[2] + "_arr_board_data"
+
+                    create_file(dep_file_name, departures_data)
+                    create_file(arr_file_name, arrivals_data)
+
+                    return "Departures and arrivals saved to files: " + dep_file_name + arr_file_name
+
+                elif self.__complexity == "a.p" or self.__complexity == "a":
+                    raise NotImplementedError
+
+                elif self.__complexity == "a.n":
+                    raise NotImplementedError
+
+                elif self.__complexity == "s.p" or self.__complexity == "s":
+                    raise NotImplementedError
+
+                elif self.__complexity == "s.n":
+                    raise NotImplementedError
+
+            elif dep_api_response.status_code == 404 or arr_api_response == 404:
+                raise ValueError("An unexpected error occurred. Status codes:", dep_api_response.status_code, arr_api_response.status_code)
+
+            elif (dep_api_response == 401 or arr_api_response == 401) or (dep_api_response == 403 or arr_api_response == 403):
+                raise ValueError("Access blocked: check your credentials. Status codes:", dep_api_response.status_code, arr_api_response.status_code)
+
+            else:
+                raise ConnectionRefusedError("Failed to connect to the RTT API server. Try again in a few minutes. Status codes:", dep_api_response.status_code, arr_api_response.status_code)
+
+        else:
+            raise ValueError("Invalid date or time. Date or time provided did not meet requirements or fall into the valid date/time range.")
