@@ -36,7 +36,7 @@ class RealtimeTrainsPy():
         self.__services = ServiceDetails(username = self._username, password = self.__password, complexity = complexity.lower())
         self.__boards = Boards(username = self._username, password = self.__password, complexity = complexity)
 
-    def get_departures_board(self, tiploc: str, filter: str = None, date: str = None, rows: int = None, time: str = None) -> list | str:
+    def get_departures(self, tiploc: str, filter: str = None, date: str = None, rows: int = None, time: str = None) -> list | str:
         """
         ### Parameters
         **tiploc** *(required)*
@@ -63,7 +63,7 @@ class RealtimeTrainsPy():
         """
         return self.__boards._get_dep_board_details(tiploc = tiploc, filter = filter, date = date, rows = rows, time = time)
 
-    def get_arrivals_board(self, tiploc: str, filter: str = None, date: str = None, rows: int = None, time: str = None) -> list | str:
+    def get_arrivals(self, tiploc: str, filter: str = None, date: str = None, rows: int = None, time: str = None) -> list | str:
         """
         **tiploc** *(required)*
 
@@ -105,3 +105,9 @@ class RealtimeTrainsPy():
         ```
         """
         return self.__services._get_service_details(service_uid = service_uid, date = date)
+    
+    def get_station(self, tiploc: str, filter: str = None, date: str = None, rows: int = None, time: str = None) -> list | str:
+        """
+        Docs soon
+        """
+        return self.__boards._get_stat_board_details(tiploc = tiploc, filter = filter, date = date, rows = rows, time = time)
