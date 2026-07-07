@@ -2,8 +2,6 @@
 
 ---
 
-### Our latest release, [version 2027.1.0](https://github.com/anonymous44401/realtime-trains-py/wiki/Release-Notes#version-202710), features multiple breaking changes to allow realtime-trains-py to replace the legacy Realtime Trains API with the Next Generation API. Please check the [release notes](https://github.com/anonymous44401/realtime-trains-py/wiki/Release-Notes#version-202710) for full details about these changes.
-
 Maintained and managed by anonymous44401
 
 ![PyPI](https://img.shields.io/pypi/v/realtime-trains-py) ![License](https://img.shields.io/github/license/anonymous44401/realtime-trains-py) ![Issues](https://img.shields.io/github/issues/anonymous44401/realtime-trains-py) ![Downloads](https://img.shields.io/pypi/dm/realtime-trains-py)
