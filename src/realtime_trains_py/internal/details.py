@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 ### Service Details ###
 
+
 # Calling Point dataclass
 @dataclass(slots=True, frozen=True)
 class CallingPoint:
@@ -14,6 +15,7 @@ class CallingPoint:
     expected_departure: str
     coaches: int
 
+
 # Service Data dataclass
 @dataclass(slots=True, frozen=True)
 class ServiceData:
@@ -25,8 +27,10 @@ class ServiceData:
     start_time: str
     end_time: str
     coaches: int
-        
+
+
 ### Board Details ###
+
 
 # Station Board Details dataclass
 @dataclass(slots=True, frozen=True)
@@ -40,6 +44,7 @@ class StationBoardDetails:
     expected_departure: str
     service_uid: str
     coaches: int
+
 
 # Default Board dataclass
 @dataclass(slots=True, frozen=True)

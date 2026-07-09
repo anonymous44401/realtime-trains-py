@@ -1,11 +1,11 @@
 # Import external libraries
-import requests
-
 from datetime import datetime
+
+import requests
 from tabulate import tabulate
 
 # Import necessary items from other files
-from realtime_trains_py.internal.details import ServiceData, CallingPoint
+from realtime_trains_py.internal.details import CallingPoint, ServiceData
 from realtime_trains_py.internal.errors import APIResponseError, NoDataFound
 from realtime_trains_py.internal.utilities import (
     create_file,
@@ -31,7 +31,7 @@ class ServiceDetails:
 
         # Get the api response using the auth details provided
         api_response = requests.get(
-            f"https://data.rtt.io/rtt/service",
+            "https://data.rtt.io/rtt/service",
             params={"uniqueIdentity": f"gb-nr:{service_uid}:{date}"},
             headers=self.__headers,
         )

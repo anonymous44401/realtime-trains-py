@@ -1,7 +1,9 @@
 # Import external libraries
 import json
-import os, os.path
+import os
+import os.path
 import re
+
 import requests
 
 # Import necessary items from other files
@@ -107,7 +109,11 @@ def create_parameters(
 
 def get_dep_service_data(service) -> StationBoardDetails:
     # Set initial values for the service details, which will be updated if the relevant data exists in the API response
-    expected_departure = expected_arrival = platform = scheduled_arrival = scheduled_departure = "-"
+    expected_departure: str = "-"
+    expected_arrival: str = "-"
+    platform: str = "-"
+    scheduled_arrival: str = "-"
+    scheduled_departure: str = "-"
 
     # Extract the temporal and location data for the service, which contains the details of the departure and arrival times, platform, and coaches.
     temporal_data = service["temporalData"]
@@ -120,25 +126,25 @@ def get_dep_service_data(service) -> StationBoardDetails:
         # expected arrival time accordingly. If the realtime data matches the scheduled arrival time, set the expected
         # arrival time to "On time".
         if "scheduleAdvertised" in temporal_data["arrival"]:
-            scheduled_arrival: str = temporal_data["arrival"][
-                "scheduleAdvertised"
-            ].split("T")[1][:5]
+            scheduled_arrival = temporal_data["arrival"]["scheduleAdvertised"].split(
+                "T"
+            )[1][:5]
 
         if temporal_data["arrival"]["isCancelled"]:
-            expected_arrival: str = "Cancelled"
+            expected_arrival = "Cancelled"
 
         else:
             if "realtimeActual" in temporal_data["arrival"]:
-                expected_arrival: str = temporal_data["arrival"][
-                    "realtimeActual"
-                ].split("T")[1][:5]
+                expected_arrival = temporal_data["arrival"]["realtimeActual"].split(
+                    "T"
+                )[1][:5]
 
             elif "realtimeForecast" in temporal_data["arrival"]:
-                expected_arrival: str = temporal_data["arrival"][
-                    "realtimeForecast"
-                ].split("T")[1][:5]
+                expected_arrival = temporal_data["arrival"]["realtimeForecast"].split(
+                    "T"
+                )[1][:5]
 
-            expected_arrival: str = (
+            expected_arrival = (
                 "On time"
                 if expected_arrival == scheduled_arrival
                 else f"Exp {expected_arrival}"
@@ -151,25 +157,25 @@ def get_dep_service_data(service) -> StationBoardDetails:
         # expected departure time accordingly. If the realtime data matches the scheduled departure time, set the expected
         # departure time to "On time".
         if "scheduleAdvertised" in temporal_data["departure"]:
-            scheduled_departure: str = temporal_data["departure"][
+            scheduled_departure = temporal_data["departure"][
                 "scheduleAdvertised"
             ].split("T")[1][:5]
 
         if temporal_data["departure"]["isCancelled"]:
-            expected_departure: str = "Cancelled"
+            expected_departure = "Cancelled"
 
         else:
             if "realtimeActual" in temporal_data["departure"]:
-                expected_departure: str = temporal_data["departure"][
-                    "realtimeActual"
-                ].split("T")[1][:5]
+                expected_departure = temporal_data["departure"]["realtimeActual"].split(
+                    "T"
+                )[1][:5]
 
             elif "realtimeForecast" in temporal_data["departure"]:
-                expected_departure: str = temporal_data["departure"][
+                expected_departure = temporal_data["departure"][
                     "realtimeForecast"
                 ].split("T")[1][:5]
 
-            expected_departure: str = (
+            expected_departure = (
                 "On time"
                 if expected_departure == scheduled_departure
                 else f"Exp {expected_departure}"
@@ -179,10 +185,10 @@ def get_dep_service_data(service) -> StationBoardDetails:
     if "platform" in location_data:
         # Check if there is forecast or actual platform data in the API response, and set the platform accordingly.
         if "forecast" in location_data["platform"]:
-            platform: str = location_data["platform"]["forecast"]
+            platform = location_data["platform"]["forecast"]
 
         else:
-            platform: str = location_data["platform"]["actual"]
+            platform = location_data["platform"]["actual"]
 
     return StationBoardDetails(
         scheduled_arrival,
@@ -209,7 +215,7 @@ def validate_date(date: str) -> None:
             "[1-9][0-9][0-9]{2}-([0][1-9]|[1][0-2])-([1-2][0-9]|[0][1-9]|[3][0-1])",
             date,
         )
-        == None
+        is None
     ):
         raise InvalidDateProvided(date)
 
@@ -217,12 +223,12 @@ def validate_date(date: str) -> None:
 def validate_time(time: str) -> None:
     # Validate the time provided by the user. The time must be in the format HHMM, and must be a valid time.
     # If the time is not valid, raise an error.
-    if re.fullmatch("([01][0-9]|2[0-3])([0-5][0-9])", time) == None:
+    if re.fullmatch("([01][0-9]|2[0-3])([0-5][0-9])", time) is None:
         raise InvalidTimeProvided(time)
 
 
 def validate_uid(uid: str) -> None:
     # Validate the service UID provided by the user. The UID must be a string starting with a capital letter followed
     # by 5 digits (e.g. A12345). If the UID is not valid, raise an error.
-    if re.fullmatch("[A-Z]?[0-9]{5}", uid) == None:
+    if re.fullmatch("[A-Z]?[0-9]{5}", uid) is None:
         raise InvalidUIDProvided(uid)

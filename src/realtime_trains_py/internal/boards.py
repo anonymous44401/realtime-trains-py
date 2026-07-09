@@ -1,7 +1,7 @@
 # Import external libraries
-import requests
-
 from datetime import datetime
+
+import requests
 from tabulate import tabulate
 
 # Import necessary items from other files

@@ -1,9 +1,9 @@
 # Import external libraries
-import requests
 import sys
 import time
-
 from datetime import datetime
+
+import requests
 
 # Import necessary items from other files
 from realtime_trains_py.internal.details import StationBoardDetails
@@ -41,7 +41,7 @@ class LiveBoard:
                 raise AuthenticationError("Request token provided isn't valid.")
 
             else:
-                self.__headers["Authorization"] = f"Bearer {response.json()["token"]}"
+                self.__headers["Authorization"] = f"Bearer {response.json()['token']}"
 
     def _get_live(self, tiploc: str, mode: str = "LCD") -> None:
         # Output a helpful message to the user: Press Ctrl+C to close live departure board.
@@ -63,7 +63,7 @@ class LiveBoard:
                 first_run = False
 
                 response = self.__session.get(
-                    f"https://data.rtt.io/rtt/location",
+                    "https://data.rtt.io/rtt/location",
                     params=params,
                     headers=self.__headers,
                 )
@@ -112,10 +112,10 @@ class LiveBoard:
                             # If the service terminates at the requested location, display that it terminates here and its origin.
                             # Otherwise, display the scheduled departure time, destination, platform and whether it's on time, delayed or cancelled.
                             if service.terminus == requested_location:
-                                line = f"{service.scheduled_arrival} Terminates here. Service from {service.origin}  {service.expected_arrival if mode!='LCD' else check_cancel(service.expected_arrival)}\n"
+                                line = f"{service.scheduled_arrival} Terminates here. Service from {service.origin}  {service.expected_arrival if mode != 'LCD' else check_cancel(service.expected_arrival)}\n"
 
                             else:
-                                line = f"{service.scheduled_departure} {service.terminus} {service.platform}  {service.expected_departure if mode!='LCD' else check_cancel(service.expected_departure)}\n"
+                                line = f"{service.scheduled_departure} {service.terminus} {service.platform}  {service.expected_departure if mode != 'LCD' else check_cancel(service.expected_departure)}\n"
 
                             if second:
                                 second = False
@@ -162,7 +162,7 @@ class LiveBoard:
 
         # Get the service data for the first service
         all_service_data = self.__session.get(
-            f"https://data.rtt.io/rtt/service", params=params, headers=self.__headers
+            "https://data.rtt.io/rtt/service", params=params, headers=self.__headers
         ).json()["service"]
 
         line_three = "Calling at: "
@@ -173,10 +173,10 @@ class LiveBoard:
         # If the service terminates at the requested location, display that it terminates here and its origin.
         # Otherwise, display the scheduled departure time, destination, platform and whether it's on time, delayed or cancelled.
         if service.terminus == requested_location:
-            line_two = f"1st {service.scheduled_arrival} Terminates here. Service from {all_service_data["origin"][0]["location"].pop("description")}  {service.expected_arrival if mode!='LCD' else check_cancel(service.expected_arrival)}\n"
+            line_two = f"1st {service.scheduled_arrival} Terminates here. Service from {all_service_data['origin'][0]['location'].pop('description')}  {service.expected_arrival if mode != 'LCD' else check_cancel(service.expected_arrival)}\n"
 
         else:
-            line_two = f"1st {service.scheduled_departure} {service.terminus} {service.platform}  {service.expected_departure if mode!='LCD' else check_cancel(service.expected_departure)}\n"
+            line_two = f"1st {service.scheduled_departure} {service.terminus} {service.platform}  {service.expected_departure if mode != 'LCD' else check_cancel(service.expected_departure)}\n"
 
         can_add_calling_points = False
         stops_outputted = (
@@ -235,6 +235,6 @@ class LiveBoard:
         )
 
         # If the number of coaches is given, add that to the end of the line. Otherwise add \n
-        line_three += f" formed of {coaches} coaches\n" if coaches > 0 else f"\n"
+        line_three += f" formed of {coaches} coaches\n" if coaches > 0 else "\n"
 
         return line_two, line_three

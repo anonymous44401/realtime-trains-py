@@ -7,7 +7,6 @@ from realtime_trains_py.internal.boards import Boards
 from realtime_trains_py.internal.details import DefaultBoard
 from realtime_trains_py.internal.live_board import LiveBoard
 from realtime_trains_py.internal.services import (
-    ServiceDetails,
     ServiceData,
     ServiceDetails,
 )
