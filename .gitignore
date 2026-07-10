@@ -2,7 +2,8 @@
 .vscode
 data/
 tests/
-tests.py
+secrets/*
+testing/*
 live_service.py
 
 

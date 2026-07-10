@@ -25,21 +25,28 @@ class FileWriteError(Exception):
 class InvalidDateProvided(Exception):
     def __init__(self, invalid_item: str) -> None:
         super().__init__(
-            f'\nrealtime-trains-py error:\nThe date you provided didn\'t meet the requirements or fall into a valid range. \nGiven: "{invalid_item}" \nExpected: YYYY-MM-DD format.'
+            f'\nrealtime-trains-py error:\nThe date you provided didn\'t meet the requirements or fall into a valid range. \nGiven: "{invalid_item}" \nExpected: YYYY-MM-DD format (like "2026-02-26").'
         )
 
 
 class InvalidTimeProvided(Exception):
     def __init__(self, invalid_item: str) -> None:
         super().__init__(
-            f'\nrealtime-trains-py error:\nThe time you provided didn\'t meet the requirements or fall into a valid range. \nGiven: "{invalid_item}" \nExpected: HHMM format.'
+            f'\nrealtime-trains-py error:\nThe time you provided didn\'t meet the requirements or fall into a valid range. \nGiven: "{invalid_item}" \nExpected: HHMM format (like "1800").'
+        )
+
+
+class InvalidTIPLOCProvided(Exception):
+    def __init__(self, invalid_item: str) -> None:
+        super().__init__(
+            f'\nrealtime-trains-py error:\nThe TIPLOC you provided didn\'t meet the requirements or fall into a valid range. \nGiven: "{invalid_item}" \nExpected: A string with length 4-7 characters (like "KNGX" or "CLPHMJN").'
         )
 
 
 class InvalidUIDProvided(Exception):
     def __init__(self, invalid_item: str) -> None:
         super().__init__(
-            f'\nrealtime-trains-py error:\nThe Service UID you provided didn\'t meet the requirements or fall into a valid range. \nGiven: "{invalid_item}" \nExpected: A string starting with a capital letter followed by 5 digits (e.g., A12345).'
+            f'\nrealtime-trains-py error:\nThe Service UID you provided didn\'t meet the requirements or fall into a valid range. \nGiven: "{invalid_item}" \nExpected: A string with 5 digits (starting with a capital letter in some cases) (like "A12345" or "12345").'
         )
 
 

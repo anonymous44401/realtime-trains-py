@@ -13,6 +13,7 @@ from realtime_trains_py.internal.errors import (
     FileWriteError,
     InvalidDateProvided,
     InvalidTimeProvided,
+    InvalidTIPLOCProvided,
     InvalidUIDProvided,
 )
 
@@ -86,7 +87,7 @@ def create_parameters(
     # but the filter_from, filter_to, time, and date parameters are optional. If the optional parameters are not provided,
     # they will be set to an empty string in the parameters dictionary.
     parameters: dict[str, str] = {
-        "code": f"gb-nr:{tiploc.upper()}",
+        "code": f"gb-nr:{validate_tiploc(tiploc)}",
         "filterFrom": f"gb-nr:{filter_from.upper()}" if filter_from is not None else "",
         "filterTo": f"gb-nr:{filter_to.upper()}" if filter_to is not None else "",
         "timeFrom": "",
@@ -225,6 +226,13 @@ def validate_time(time: str) -> None:
     # If the time is not valid, raise an error.
     if re.fullmatch("([01][0-9]|2[0-3])([0-5][0-9])", time) is None:
         raise InvalidTimeProvided(time)
+
+
+def validate_tiploc(tiploc: str) -> str:
+    if len(tiploc) > 7 or len(tiploc) < 4:
+        raise InvalidTIPLOCProvided(tiploc)
+
+    return tiploc.upper()
 
 
 def validate_uid(uid: str) -> None:
