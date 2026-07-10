@@ -12,7 +12,7 @@ If you are using an unsupported version, please upgrade to a supported version t
 
 ## Reporting a Vulnerability
 
-We take the security of the realtime-trains-lang packages seriously. If you discover a security vulnerability, please report it as soon as possible by emailing **[anonymous4401.ad@gmail.com](mailto:anonymous4401.ad@gmail.com)**.
+We take the security of the realtime-trains-py package seriously. If you discover a security vulnerability, please report it as soon as possible by emailing **[anonymous4401.ad@gmail.com](mailto:anonymous4401.ad@gmail.com)**.
 
 Ensure you include the details of the issue. Include the following information in your report:
    - A detailed description of the vulnerability.
