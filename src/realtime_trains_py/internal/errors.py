@@ -32,14 +32,14 @@ class InvalidDateProvided(Exception):
 class InvalidTimeProvided(Exception):
     def __init__(self, invalid_item: str) -> None:
         super().__init__(
-            f'\nrealtime-trains-py error:\nThe time you provided didn\'t meet the requirements or fall into a valid range. \nGiven: "{invalid_item}" \nExpected: HHMM format (like "1800").'
+            f'\nrealtime-trains-py error:\nThe time you provided didn\'t meet the requirements or fall into a valid range. \nGiven: "{invalid_item}" \nExpected: HHMM or HH:MM format (like "1800" or "18:00").'
         )
 
 
 class InvalidTIPLOCProvided(Exception):
     def __init__(self, invalid_item: str) -> None:
         super().__init__(
-            f'\nrealtime-trains-py error:\nThe TIPLOC you provided didn\'t meet the requirements or fall into a valid range. \nGiven: "{invalid_item}" \nExpected: A string with length 4-7 characters (like "KNGX" or "CLPHMJN").'
+            f'\nrealtime-trains-py error:\nThe TIPLOC you provided didn\'t meet the requirements or fall into a valid range. \nGiven: "{invalid_item}" \nExpected: A string with length 3-7 characters (like "SVG", "KNGX" or "CLPHMJN").'
         )
 
 

@@ -1,6 +1,6 @@
 [project]
 name = "realtime-trains-py"
-version = "2027.1.1b2"
+version = "2027.1.1b3"
 description = "Python API Wrapper for the Realtime Trains API"
 readme = "README.md"
 license = {file = "LICENSE.md"}

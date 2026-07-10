@@ -81,7 +81,7 @@ def create_parameters(
 
     # If a time is provided validate the time
     if time is not None:
-        validate_time(time)
+        time = validate_time(time)
 
     # Create the parameters for the API request based on the parameters provided. The tiploc parameter is required,
     # but the filter_from, filter_to, time, and date parameters are optional. If the optional parameters are not provided,
@@ -107,6 +107,8 @@ def create_parameters(
 
     return parameters
 
+def format_time(time: str) -> str:
+    return "".join(time.split(":"))
 
 def get_dep_service_data(service) -> StationBoardDetails:
     # Set initial values for the service details, which will be updated if the relevant data exists in the API response
@@ -221,15 +223,24 @@ def validate_date(date: str) -> None:
         raise InvalidDateProvided(date)
 
 
-def validate_time(time: str) -> None:
+def validate_time(time: str) -> str:
     # Validate the time provided by the user. The time must be in the format HHMM, and must be a valid time.
     # If the time is not valid, raise an error.
-    if re.fullmatch("([01][0-9]|2[0-3])([0-5][0-9])", time) is None:
-        raise InvalidTimeProvided(time)
+    if re.fullmatch("([01][0-9]|2[0-3]):([0-5][0-9])", time) is None:
+        if re.fullmatch("([01][0-9]|2[0-3])([0-5][0-9])", time) is None:
+            raise InvalidTimeProvided(time)
+
+        else:
+            return time
+
+    else:
+        return format_time(time)
+
+
 
 
 def validate_tiploc(tiploc: str) -> str:
-    if len(tiploc) > 7 or len(tiploc) < 4:
+    if len(tiploc) > 7 or len(tiploc) < 3:
         raise InvalidTIPLOCProvided(tiploc)
 
     return tiploc.upper()
