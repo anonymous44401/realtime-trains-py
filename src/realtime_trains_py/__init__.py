@@ -71,7 +71,7 @@ class RealtimeTrainsPy:
         :param str filter_to: (Optional) A string representing the Timing Point Location Code (TIPLOC) or Computer Reservation Code (CRS) of the destination station.
         :param str date: (Optional) A string representing the date in the format YYYY-MM-DD.
         :param int rows: (Optional) An integer representing the maximum number of rows to return. (Only available for simple complexity.)
-        :param str time: (Optional) A string representing the time in the format HHMM.
+        :param str time: (Optional) A string representing the time in the formats HHMM or HH:MM.
 
         ---
         ## Examples
