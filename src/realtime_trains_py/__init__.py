@@ -92,8 +92,8 @@ class RealtimeTrainsPy:
         """
         return self.__boards._get_dep_board_details(
             tiploc=tiploc.upper(),
-            filter_from=filter_from,
-            filter_to=filter_to,
+            filter_from=filter_from.upper(),
+            filter_to=filter_to.upper(),
             date=date,
             rows=rows,
             time=time,

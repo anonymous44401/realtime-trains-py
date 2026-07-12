@@ -88,8 +88,8 @@ def create_parameters(
     # they will be set to an empty string in the parameters dictionary.
     parameters: dict[str, str] = {
         "code": f"gb-nr:{validate_tiploc(tiploc)}",
-        "filterFrom": f"gb-nr:{filter_from.upper()}" if filter_from is not None else "",
-        "filterTo": f"gb-nr:{filter_to.upper()}" if filter_to is not None else "",
+        "filterFrom": f"gb-nr:{validate_tiploc(filter_from)}" if filter_from is not None else "",
+        "filterTo": f"gb-nr:{validate_tiploc(filter_to)}" if filter_to is not None else "",
         "timeFrom": "",
         "timeTolerance": "false",
         "detailed": "false",
