@@ -33,7 +33,7 @@ rtt.get_live("KNGX") # Get live departure board for London Kings Cross
 
 #### EXAMPLE 3 ####
 
-rtt.get_live("LEEDS") # Get live departure board for Leeds
+rtt.get_live("LEEDS", "DMI_white") # Get live departure board for Leeds in DMI (White) mode
 
 ### EXAMPLE OUTPUT ###
 # Leeds Live:

@@ -11,7 +11,7 @@ rtt = RealtimeTrainsPy(
 # Query for getting the next 10 departures from Hull around 10:00 UTC on 10th January 2025
 departures_at_hull = rtt.get_departures(tiploc="HULL", date="2025-01-10", time="1000", rows=10)
 
-if departures_at_hull != None:
+if departures_at_hull is not None:
     for departures in departures_at_hull.board:
         print(f"{departures.service_uid} | {departures.scheduled_departure} | Hull to {departures.terminus}")
 
@@ -31,7 +31,7 @@ if departures_at_hull != None:
 
 #### EXAMPLE 2 ####
 
-# Query for getting the details of the service with service_uid "W47587" 
+# Query for getting the details of the service with service_uid "W47587"
 service = rtt.get_service("W47587")
 
 print(f"Service: {service.service_uid}\n{service.origin} to {service.destination} \nOperated by {service.operator}")
