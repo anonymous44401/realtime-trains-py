@@ -87,9 +87,9 @@ def create_parameters(
     # but the filter_from, filter_to, time, and date parameters are optional. If the optional parameters are not provided,
     # they will be set to an empty string in the parameters dictionary.
     parameters: dict[str, str] = {
-        "code": f"gb-nr:{validate_tiploc(tiploc)}",
-        "filterFrom": f"gb-nr:{validate_tiploc(filter_from)}" if filter_from is not None else "",
-        "filterTo": f"gb-nr:{validate_tiploc(filter_to)}" if filter_to is not None else "",
+        "code": f"gb-nr:{validate_tiploc(tiploc.upper())}",
+        "filterFrom": f"gb-nr:{validate_tiploc(filter_from.upper())}" if filter_from is not None else "",
+        "filterTo": f"gb-nr:{validate_tiploc(filter_to.upper())}" if filter_to is not None else "",
         "timeFrom": "",
         "timeTolerance": "false",
         "detailed": "false",

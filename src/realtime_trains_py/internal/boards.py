@@ -45,7 +45,7 @@ class Boards:
                 # If complexity is c, save the JSON data to a new .json file in the realtime_trains_py_data folder using the create_file
                 # function and return an empty DefaultBoard data class since the data is saved to a file and not returned as a data class object
                 create_file(
-                    f"{tiploc}_on_{datetime.now().strftime('%Y-%m-%d') if date is None else date}_board_data",
+                    f"{tiploc.upper()}_on_{datetime.now().strftime('%Y-%m-%d') if date is None else date}_board_data",
                     service_data,
                 )
 

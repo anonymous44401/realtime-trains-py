@@ -91,9 +91,9 @@ class RealtimeTrainsPy:
         [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki)
         """
         return self.__boards._get_dep_board_details(
-            tiploc=tiploc.upper(),
-            filter_from=filter_from.upper(),
-            filter_to=filter_to.upper(),
+            tiploc=tiploc,
+            filter_from=filter_from,
+            filter_to=filter_to,
             date=date,
             rows=rows,
             time=time,
