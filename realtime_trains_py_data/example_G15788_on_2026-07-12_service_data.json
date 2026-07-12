@@ -1,0 +1,502 @@
+{
+    "scheduleMetadata": {
+        "uniqueIdentity": "gb-nr:G15788:2026-07-12",
+        "namespace": "gb-nr",
+        "identity": "G15788",
+        "departureDate": "2026-07-12",
+        "operator": {
+            "code": "TP",
+            "name": "Transpennine Express"
+        },
+        "modeType": "TRAIN",
+        "inPassengerService": true
+    },
+    "locations": [
+        {
+            "temporalData": {
+                "departure": {
+                    "scheduleInternal": "2026-07-12T08:57:00",
+                    "scheduleAdvertised": "2026-07-12T08:57:00",
+                    "realtimeActual": "2026-07-12T08:58:00",
+                    "realtimeInternalLateness": 1,
+                    "realtimeAdvertisedLateness": 1,
+                    "isCancelled": false
+                },
+                "scheduledCallType": "ADVERTISED_PICK_UP",
+                "realtimeCallType": "ADVERTISED_PICK_UP",
+                "displayAs": "CALL",
+                "isInterpolated": false
+            },
+            "locationMetadata": {
+                "platform": {
+                    "planned": "4",
+                    "actual": "3"
+                },
+                "line": {
+                    "planned": "FL",
+                    "actual": "URS"
+                },
+                "numberOfVehicles": 3,
+                "allocationIndex": 0
+            },
+            "location": {
+                "namespace": "gb-nr",
+                "description": "Manchester Victoria",
+                "shortCodes": [
+                    "MCV"
+                ],
+                "longCodes": [
+                    "MNCRVIC"
+                ]
+            }
+        },
+        {
+            "temporalData": {
+                "arrival": {
+                    "scheduleInternal": "2026-07-12T09:43:00",
+                    "scheduleAdvertised": "2026-07-12T09:44:00",
+                    "realtimeForecast": "2026-07-12T09:43:00",
+                    "isCancelled": false
+                },
+                "departure": {
+                    "scheduleInternal": "2026-07-12T09:45:00",
+                    "scheduleAdvertised": "2026-07-12T09:45:00",
+                    "realtimeForecast": "2026-07-12T09:45:00",
+                    "isCancelled": false
+                },
+                "scheduledCallType": "ADVERTISED_OPEN",
+                "realtimeCallType": "ADVERTISED_OPEN",
+                "displayAs": "CALL",
+                "isInterpolated": false
+            },
+            "locationMetadata": {
+                "platform": {
+                    "planned": "1",
+                    "forecast": "1"
+                },
+                "numberOfVehicles": 3,
+                "allocationIndex": 0
+            },
+            "location": {
+                "namespace": "gb-nr",
+                "description": "Brighouse",
+                "shortCodes": [
+                    "BGH"
+                ],
+                "longCodes": [
+                    "BRHOUSE"
+                ]
+            }
+        },
+        {
+            "temporalData": {
+                "arrival": {
+                    "scheduleInternal": "2026-07-12T09:56:00",
+                    "scheduleAdvertised": "2026-07-12T09:56:00",
+                    "realtimeForecast": "2026-07-12T09:56:00",
+                    "isCancelled": false
+                },
+                "departure": {
+                    "scheduleInternal": "2026-07-12T09:57:00",
+                    "scheduleAdvertised": "2026-07-12T09:57:00",
+                    "realtimeForecast": "2026-07-12T09:57:00",
+                    "isCancelled": false
+                },
+                "scheduledCallType": "ADVERTISED_OPEN",
+                "realtimeCallType": "ADVERTISED_OPEN",
+                "displayAs": "CALL",
+                "isInterpolated": false
+            },
+            "locationMetadata": {
+                "platform": {
+                    "planned": "1",
+                    "forecast": "1"
+                },
+                "numberOfVehicles": 3,
+                "allocationIndex": 0
+            },
+            "location": {
+                "namespace": "gb-nr",
+                "description": "Dewsbury",
+                "shortCodes": [
+                    "DEW"
+                ],
+                "longCodes": [
+                    "DWBY"
+                ]
+            }
+        },
+        {
+            "temporalData": {
+                "arrival": {
+                    "scheduleInternal": "2026-07-12T10:10:00",
+                    "scheduleAdvertised": "2026-07-12T10:10:00",
+                    "realtimeForecast": "2026-07-12T10:09:00",
+                    "isCancelled": false
+                },
+                "departure": {
+                    "scheduleInternal": "2026-07-12T10:13:00",
+                    "scheduleAdvertised": "2026-07-12T10:13:00",
+                    "realtimeForecast": "2026-07-12T10:13:00",
+                    "isCancelled": false
+                },
+                "scheduledCallType": "ADVERTISED_OPEN",
+                "realtimeCallType": "ADVERTISED_OPEN",
+                "displayAs": "CALL",
+                "isInterpolated": false
+            },
+            "locationMetadata": {
+                "platform": {
+                    "planned": "11D",
+                    "forecast": "11D"
+                },
+                "numberOfVehicles": 3,
+                "allocationIndex": 0
+            },
+            "location": {
+                "namespace": "gb-nr",
+                "description": "Leeds",
+                "shortCodes": [
+                    "LDS"
+                ],
+                "longCodes": [
+                    "LEEDS"
+                ]
+            }
+        },
+        {
+            "temporalData": {
+                "arrival": {
+                    "scheduleInternal": "2026-07-12T10:34:00",
+                    "scheduleAdvertised": "2026-07-12T10:35:00",
+                    "realtimeForecast": "2026-07-12T10:34:00",
+                    "isCancelled": false
+                },
+                "departure": {
+                    "scheduleInternal": "2026-07-12T10:39:00",
+                    "scheduleAdvertised": "2026-07-12T10:39:00",
+                    "realtimeForecast": "2026-07-12T10:39:00",
+                    "isCancelled": false
+                },
+                "scheduledCallType": "ADVERTISED_OPEN",
+                "realtimeCallType": "ADVERTISED_OPEN",
+                "displayAs": "CALL",
+                "isInterpolated": false
+            },
+            "locationMetadata": {
+                "platform": {
+                    "planned": "10",
+                    "forecast": "10"
+                },
+                "numberOfVehicles": 3,
+                "allocationIndex": 0
+            },
+            "location": {
+                "namespace": "gb-nr",
+                "description": "York",
+                "shortCodes": [
+                    "YRK"
+                ],
+                "longCodes": [
+                    "YORK"
+                ]
+            }
+        },
+        {
+            "temporalData": {
+                "arrival": {
+                    "scheduleInternal": "2026-07-12T10:55:00",
+                    "scheduleAdvertised": "2026-07-12T10:55:00",
+                    "realtimeForecast": "2026-07-12T10:55:00",
+                    "isCancelled": false
+                },
+                "departure": {
+                    "scheduleInternal": "2026-07-12T10:56:00",
+                    "scheduleAdvertised": "2026-07-12T10:56:00",
+                    "realtimeForecast": "2026-07-12T10:56:00",
+                    "isCancelled": false
+                },
+                "scheduledCallType": "ADVERTISED_OPEN",
+                "realtimeCallType": "ADVERTISED_OPEN",
+                "displayAs": "CALL",
+                "isInterpolated": false
+            },
+            "locationMetadata": {
+                "platform": {
+                    "planned": "2",
+                    "forecast": "2"
+                },
+                "line": {
+                    "planned": "FL",
+                    "forecast": "FL"
+                },
+                "numberOfVehicles": 3,
+                "allocationIndex": 0
+            },
+            "location": {
+                "namespace": "gb-nr",
+                "description": "Thirsk",
+                "shortCodes": [
+                    "THI"
+                ],
+                "longCodes": [
+                    "THIRSK"
+                ]
+            }
+        },
+        {
+            "temporalData": {
+                "arrival": {
+                    "scheduleInternal": "2026-07-12T11:03:00",
+                    "scheduleAdvertised": "2026-07-12T11:03:00",
+                    "realtimeForecast": "2026-07-12T11:03:00",
+                    "isCancelled": false
+                },
+                "departure": {
+                    "scheduleInternal": "2026-07-12T11:04:00",
+                    "scheduleAdvertised": "2026-07-12T11:04:00",
+                    "realtimeForecast": "2026-07-12T11:04:00",
+                    "isCancelled": false
+                },
+                "scheduledCallType": "ADVERTISED_OPEN",
+                "realtimeCallType": "ADVERTISED_OPEN",
+                "displayAs": "CALL",
+                "isInterpolated": false
+            },
+            "locationMetadata": {
+                "numberOfVehicles": 3,
+                "allocationIndex": 0
+            },
+            "location": {
+                "namespace": "gb-nr",
+                "description": "Northallerton",
+                "shortCodes": [
+                    "NTR"
+                ],
+                "longCodes": [
+                    "NLRTN"
+                ]
+            }
+        },
+        {
+            "temporalData": {
+                "arrival": {
+                    "scheduleInternal": "2026-07-12T11:16:00",
+                    "scheduleAdvertised": "2026-07-12T11:16:00",
+                    "realtimeForecast": "2026-07-12T11:16:00",
+                    "isCancelled": false
+                },
+                "departure": {
+                    "scheduleInternal": "2026-07-12T11:17:00",
+                    "scheduleAdvertised": "2026-07-12T11:17:00",
+                    "realtimeForecast": "2026-07-12T11:17:00",
+                    "isCancelled": false
+                },
+                "scheduledCallType": "ADVERTISED_OPEN",
+                "realtimeCallType": "ADVERTISED_OPEN",
+                "displayAs": "CALL",
+                "isInterpolated": false
+            },
+            "locationMetadata": {
+                "numberOfVehicles": 3,
+                "allocationIndex": 0
+            },
+            "location": {
+                "namespace": "gb-nr",
+                "description": "Yarm",
+                "shortCodes": [
+                    "YRM"
+                ],
+                "longCodes": [
+                    "YAAM"
+                ]
+            }
+        },
+        {
+            "temporalData": {
+                "arrival": {
+                    "scheduleInternal": "2026-07-12T11:21:00",
+                    "scheduleAdvertised": "2026-07-12T11:22:00",
+                    "realtimeForecast": "2026-07-12T11:21:00",
+                    "isCancelled": false
+                },
+                "departure": {
+                    "scheduleInternal": "2026-07-12T11:23:00",
+                    "scheduleAdvertised": "2026-07-12T11:23:00",
+                    "realtimeForecast": "2026-07-12T11:23:00",
+                    "isCancelled": false
+                },
+                "scheduledCallType": "ADVERTISED_OPEN",
+                "realtimeCallType": "ADVERTISED_OPEN",
+                "displayAs": "CALL",
+                "isInterpolated": false
+            },
+            "locationMetadata": {
+                "platform": {
+                    "planned": "2",
+                    "forecast": "2"
+                },
+                "numberOfVehicles": 3,
+                "allocationIndex": 0
+            },
+            "location": {
+                "namespace": "gb-nr",
+                "description": "Eaglescliffe",
+                "shortCodes": [
+                    "EAG"
+                ],
+                "longCodes": [
+                    "EGLSCLF"
+                ]
+            }
+        },
+        {
+            "temporalData": {
+                "arrival": {
+                    "scheduleInternal": "2026-07-12T11:29:00",
+                    "scheduleAdvertised": "2026-07-12T11:29:00",
+                    "realtimeForecast": "2026-07-12T11:29:00",
+                    "isCancelled": false
+                },
+                "departure": {
+                    "scheduleInternal": "2026-07-12T11:30:00",
+                    "scheduleAdvertised": "2026-07-12T11:30:00",
+                    "realtimeForecast": "2026-07-12T11:30:00",
+                    "isCancelled": false
+                },
+                "scheduledCallType": "ADVERTISED_OPEN",
+                "realtimeCallType": "ADVERTISED_OPEN",
+                "displayAs": "CALL",
+                "isInterpolated": false
+            },
+            "locationMetadata": {
+                "platform": {
+                    "planned": "2",
+                    "forecast": "2"
+                },
+                "line": {
+                    "planned": "ML",
+                    "forecast": "ML"
+                },
+                "numberOfVehicles": 3,
+                "allocationIndex": 0
+            },
+            "location": {
+                "namespace": "gb-nr",
+                "description": "Thornaby",
+                "shortCodes": [
+                    "TBY"
+                ],
+                "longCodes": [
+                    "TABY"
+                ]
+            }
+        },
+        {
+            "temporalData": {
+                "arrival": {
+                    "scheduleInternal": "2026-07-12T11:36:00",
+                    "scheduleAdvertised": "2026-07-12T11:37:00",
+                    "realtimeForecast": "2026-07-12T11:36:00",
+                    "isCancelled": false
+                },
+                "departure": {
+                    "scheduleInternal": "2026-07-12T11:38:00",
+                    "scheduleAdvertised": "2026-07-12T11:38:00",
+                    "realtimeForecast": "2026-07-12T11:38:00",
+                    "isCancelled": false
+                },
+                "scheduledCallType": "ADVERTISED_OPEN",
+                "realtimeCallType": "ADVERTISED_OPEN",
+                "displayAs": "CALL",
+                "isInterpolated": false
+            },
+            "locationMetadata": {
+                "platform": {
+                    "planned": "2",
+                    "forecast": "2"
+                },
+                "line": {
+                    "planned": "FL",
+                    "forecast": "FL"
+                },
+                "path": {
+                    "planned": "FL",
+                    "forecast": "FL"
+                },
+                "numberOfVehicles": 3,
+                "allocationIndex": 0
+            },
+            "location": {
+                "namespace": "gb-nr",
+                "description": "Middlesbrough",
+                "shortCodes": [
+                    "MBR"
+                ],
+                "longCodes": [
+                    "MDLSBRO"
+                ]
+            }
+        },
+        {
+            "temporalData": {
+                "arrival": {
+                    "scheduleInternal": "2026-07-12T11:48:00",
+                    "scheduleAdvertised": "2026-07-12T11:48:00",
+                    "realtimeForecast": "2026-07-12T11:47:00",
+                    "isCancelled": false
+                },
+                "scheduledCallType": "ADVERTISED_SET_DOWN",
+                "realtimeCallType": "ADVERTISED_SET_DOWN",
+                "displayAs": "CALL",
+                "isInterpolated": false
+            },
+            "locationMetadata": {
+                "platform": {
+                    "planned": "2",
+                    "forecast": "2"
+                },
+                "numberOfVehicles": 3,
+                "allocationIndex": 0
+            },
+            "location": {
+                "namespace": "gb-nr",
+                "description": "Redcar Central",
+                "shortCodes": [
+                    "RCC"
+                ],
+                "longCodes": [
+                    "REDCARC"
+                ]
+            }
+        }
+    ],
+    "origin": [
+        {
+            "location": {
+                "description": "Manchester Victoria",
+                "longCodes": [
+                    "MNCRVIC"
+                ]
+            },
+            "temporalData": {
+                "scheduleInternal": "2026-07-12T08:57:00",
+                "scheduleAdvertised": "2026-07-12T08:57:00"
+            }
+        }
+    ],
+    "destination": [
+        {
+            "location": {
+                "description": "Redcar Central",
+                "longCodes": [
+                    "REDCARC"
+                ]
+            },
+            "temporalData": {
+                "scheduleInternal": "2026-07-12T11:48:00",
+                "scheduleAdvertised": "2026-07-12T11:48:00"
+            }
+        }
+    ]
+}
