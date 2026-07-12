@@ -8,7 +8,7 @@ import requests
 # Import necessary items from other files
 from realtime_trains_py.internal.details import StationBoardDetails
 from realtime_trains_py.internal.errors import AuthenticationError
-from realtime_trains_py.internal.utilities import check_cancel, get_dep_service_data
+from realtime_trains_py.internal.utilities import check_cancel, get_dep_service_data, validate_tiploc
 
 
 class LiveBoard:
@@ -51,7 +51,7 @@ class LiveBoard:
         first_run: bool = True
 
         params = {
-            "code": f"gb-nr:{tiploc}",
+            "code": f"gb-nr:{validate_tiploc(tiploc)}",
             "timeTolerance": "false",
             "detailed": "false",
         }

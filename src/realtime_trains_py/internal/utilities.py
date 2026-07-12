@@ -243,7 +243,7 @@ def validate_tiploc(tiploc: str) -> str:
     if len(tiploc) > 7 or len(tiploc) < 3:
         raise InvalidTIPLOCProvided(tiploc)
 
-    return tiploc.upper()
+    return tiploc
 
 
 def validate_uid(uid: str) -> None:
