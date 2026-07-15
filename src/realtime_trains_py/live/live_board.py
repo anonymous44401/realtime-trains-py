@@ -6,18 +6,18 @@ from datetime import datetime
 import requests
 
 # Import necessary items from other files
-from realtime_trains_py.internal.details import StationBoardDetails
+from realtime_trains_py.internal.details import ServiceLocationData
 from realtime_trains_py.internal.errors import AuthenticationError
-from realtime_trains_py.internal.utilities import check_cancel, get_dep_service_data, validate_tiploc
+from realtime_trains_py.internal.utilities import check_cancel, validate_tiploc
+
+
+from realtime_trains_py.parsing.parse_service_data import parse_service_data
 
 
 class LiveBoard:
     # Take the request token and the token to create a new request token when the old request token expires
-    def __init__(self, api_request_token: str, request_token: str) -> None:
-        self.__headers = {
-            "Accept": "application/json",
-            "Authorization": f"Bearer {api_request_token}",
-        }
+    def __init__(self, headers: dict[str, str], request_token: str) -> None:
+        self.__headers = headers
         self.__session = requests.Session()
         self.__request_token = request_token
 
@@ -57,7 +57,7 @@ class LiveBoard:
         }
 
         while True:
-            departure_board: list[StationBoardDetails] = []
+            departure_board: list[ServiceLocationData] = []
             # Update the departure board every 60 seconds, on the minute
             if first_run or datetime.now().strftime("%S") == "00":
                 first_run = False
@@ -77,7 +77,7 @@ class LiveBoard:
 
                     # Get the service details for the first 3 services in the departure data and append them to a list
                     for service in departure_data["services"][:3]:
-                        departure_board.append(get_dep_service_data(service))
+                        departure_board.append(parse_service_data(service, "station_board"))
 
                     # Show the first line and update colours based on the given mode. If the mode is DMI.Y, set the text colour to yellow. If the
                     # mode is DMI.W, set the text colour to white. If the mode is LCD, set the text colour to default.
@@ -152,7 +152,7 @@ class LiveBoard:
             time.sleep(1)
 
     def __first_service(
-        self, service: StationBoardDetails, requested_location: str, mode
+        self, service: ServiceLocationData, requested_location: str, mode
     ) -> tuple:
         params = {
             "uniqueIdentity": f"gb-nr:{service.service_uid}:{datetime.now().strftime('%Y-%m-%d')}",

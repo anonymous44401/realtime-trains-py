@@ -1,11 +1,8 @@
 from dataclasses import dataclass
 
-### Service Details ###
-
-
-# Calling Point dataclass
+# Service Location Data dataclass
 @dataclass(slots=True, frozen=True)
-class CallingPoint:
+class ServiceLocationData:
     stop_name: str
     scheduled_arrival: str
     expected_arrival: str
@@ -14,7 +11,9 @@ class CallingPoint:
     scheduled_departure: str
     expected_departure: str
     coaches: int
-
+    terminus: str
+    origin: str
+    service_uid: str
 
 # Service Data dataclass
 @dataclass(slots=True, frozen=True)
@@ -23,31 +22,13 @@ class ServiceData:
     operator: str
     origin: str
     destination: str
-    calling_points: list[CallingPoint]
+    calling_points: list[ServiceLocationData]
     start_time: str
     end_time: str
     coaches: int
 
-
-### Board Details ###
-
-
-# Station Board Details dataclass
-@dataclass(slots=True, frozen=True)
-class StationBoardDetails:
-    scheduled_arrival: str
-    scheduled_departure: str
-    terminus: str
-    origin: str
-    platform: str
-    expected_arrival: str
-    expected_departure: str
-    service_uid: str
-    coaches: int
-
-
 # Default Board dataclass
 @dataclass(slots=True, frozen=True)
 class DefaultBoard:
-    board: list[StationBoardDetails]
+    board: list[ServiceLocationData]
     location: str

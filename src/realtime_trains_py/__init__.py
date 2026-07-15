@@ -1,16 +1,22 @@
 # Import external libraries
+import os
+
+import requests
+
 from datetime import datetime
 from typing import Literal
 
+from tabulate import tabulate
+
 # Import necessary items from other files
-from realtime_trains_py.internal.boards import Boards
-from realtime_trains_py.internal.details import DefaultBoard
-from realtime_trains_py.internal.live_board import LiveBoard
-from realtime_trains_py.internal.services import (
-    ServiceData,
-    ServiceDetails,
-)
-from realtime_trains_py.internal.utilities import check_token, complex_setup
+from realtime_trains_py.internal.details import DefaultBoard, ServiceData
+from realtime_trains_py.internal.errors import APIResponseError, NoDataFound
+from realtime_trains_py.live.live_board import LiveBoard
+
+from realtime_trains_py.internal.utilities import check_token, create_file, create_parameters, validate_date, validate_uid
+
+from realtime_trains_py.parsing.create_board import create_board
+from realtime_trains_py.parsing.create_service import create_service_record
 
 # Define the complexity and mode types, and their corresponding mappings to the API parameters
 Complexity = Literal["simple", "simple_normal", "complex"]
@@ -36,22 +42,19 @@ class RealtimeTrainsPy:
 
         [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki)
         """
-        api_complexity = _COMPLEXITY_MAP[complexity]
+        self.__api_complexity = _COMPLEXITY_MAP[complexity]
 
-        if api_complexity == "c":
-            complex_setup()
+        if self.__api_complexity == "c":
+            # Check if realtime_trains_py_data folder exists and create it if not
+            if not os.path.isdir("realtime_trains_py_data"):
+                os.mkdir("realtime_trains_py_data")
 
-        api_request_token = check_token(request_token=request_token)
+        self.__headers = {
+            "Accept": "application/json", 
+            "Authorization": f"Bearer {check_token(request_token=request_token)}"
+        }
 
-        self.__services = ServiceDetails(
-            api_request_token=api_request_token, complexity=api_complexity
-        )
-        self.__boards = Boards(
-            api_request_token=api_request_token, complexity=api_complexity
-        )
-        self.__live_board = LiveBoard(
-            api_request_token=api_request_token, request_token=request_token
-        )
+        self.__live_board = LiveBoard(self.__headers, request_token)
 
     def get_departures(
         self,
@@ -90,14 +93,34 @@ class RealtimeTrainsPy:
 
         [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki)
         """
-        return self.__boards._get_dep_board_details(
-            tiploc=tiploc,
-            filter_from=filter_from,
-            filter_to=filter_to,
-            date=date,
-            rows=rows,
-            time=time,
+        # Get the API response using the auth details provided
+        api_response = requests.get(
+            "https://data.rtt.io/rtt/location",
+            headers=self.__headers,
+            params=create_parameters(tiploc, filter_from, filter_to, time, date),
         )
+
+        if api_response.status_code == 200:
+            service_data = api_response.json()
+
+            if self.__api_complexity == "c":
+                # If complexity is c, save the JSON data to a new .json file in the realtime_trains_py_data folder using the create_file
+                # function and return an empty DefaultBoard data class since the data is saved to a file and not returned as a data class object
+                create_file(
+                    f"{tiploc.upper()}_on_{datetime.now().strftime('%Y-%m-%d') if date is None else date}_board_data",
+                    service_data,
+                )
+
+                return DefaultBoard([], "")
+
+            return create_board(service_data, rows, self.__api_complexity)
+            
+        elif api_response.status_code == 404:
+            raise NoDataFound()
+
+        else:
+            raise APIResponseError(f"Failed to connect to the RTT API server: {api_response.status_code} \nResponse message: {api_response.text}")
+
 
     def get_service(
         self, service_uid: str, date: str = datetime.now().strftime("%Y-%m-%d")
@@ -119,9 +142,36 @@ class RealtimeTrainsPy:
 
         [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki)
         """
-        return self.__services._get_service_details(
-            service_uid=service_uid.upper(), date=date
+        validate_uid(service_uid)
+
+        validate_date(date)
+
+        # Get the api response using the auth details provided
+        api_response = requests.get(
+            "https://data.rtt.io/rtt/service",
+            params={"uniqueIdentity": f"gb-nr:{service_uid}:{date}"},
+            headers=self.__headers,
         )
+
+        if api_response.status_code == 200:
+            service_data = api_response.json()["service"]
+
+            if self.__api_complexity == "c":
+                # Create a new file
+                create_file(f"{service_uid}_on_{date}_service_data", service_data)
+
+                # Return an empty ServiceData data class since the data is saved to a file and not returned as an object
+                return ServiceData("", "", "", "", [], "", "", 0)
+
+            return create_service_record(service_data, service_uid, self.__api_complexity)
+
+        elif api_response.status_code == 404:
+            raise NoDataFound()
+
+        else:
+            raise APIResponseError(
+                f"Failed to connect to the RTT API server: {api_response.status_code} \nResponse message: {api_response.text}"
+            )
 
     def get_live(self, tiploc: str, mode: Mode = "LCD") -> None:
         """
