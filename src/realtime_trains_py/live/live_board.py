@@ -48,7 +48,7 @@ class LiveBoard:
         sys.stdout.write("\033[1;2mPress Ctrl+C to close live departure board.\n")
         time.sleep(2)
 
-        first_run: bool = True
+        next_update: int = int(time.time())
 
         params = {
             "code": f"gb-nr:{validate_tiploc(tiploc)}",
@@ -58,8 +58,8 @@ class LiveBoard:
 
         while True:
             departure_board: list[ServiceLocationData] = []
-            # Update the departure board every 60 seconds, on the minute
-            if first_run or datetime.now().strftime("%S") == "00":
+            # Update the departure board every 90 seconds
+            if int(time.time()) == next_update:
                 first_run = False
 
                 response = self.__session.get(
@@ -144,6 +144,8 @@ class LiveBoard:
                     sys.stdout.write(
                         f"\033c\r\033[1;34m{tiploc} Live:\n \033[1;30mCheck timetable for services\n"
                     )
+
+                next_update = int(time.time()) + 90
 
             # Display the current time at the bottom of the board and update it every second
             sys.stdout.write(
