@@ -6,12 +6,11 @@ import requests
 from datetime import datetime
 from typing import Literal
 
-from tabulate import tabulate
-
 # Import necessary items from other files
 from realtime_trains_py.internal.details import DefaultBoard, ServiceData
 from realtime_trains_py.internal.errors import APIResponseError, NoDataFound
 from realtime_trains_py.live.live_board import LiveBoard
+from realtime_trains_py.live.live_service import LiveService
 
 from realtime_trains_py.internal.utilities import check_token, create_file, create_parameters, validate_date, validate_uid
 
@@ -55,6 +54,7 @@ class RealtimeTrainsPy:
         }
 
         self.__live_board = LiveBoard(self.__headers, request_token)
+        self.__live_service = LiveService(self.__headers, request_token)
 
     def get_departures(
         self,
@@ -218,6 +218,4 @@ class RealtimeTrainsPy:
 
         [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki)
         """
-        raise NotImplementedError(
-            "Calm down, eager beaver! This method is not implemented yet."
-        )
+        self.__live_service.watch_service(service_uid=service_uid)

@@ -1,15 +1,14 @@
 # Import external libraries
 import sys
 import time
-from datetime import datetime
-
 import requests
+
+from datetime import datetime
 
 # Import necessary items from other files
 from realtime_trains_py.internal.details import ServiceLocationData
 from realtime_trains_py.internal.errors import AuthenticationError
 from realtime_trains_py.internal.utilities import check_cancel, validate_tiploc
-
 
 from realtime_trains_py.parsing.parse_service_data import parse_service_data
 
@@ -60,7 +59,6 @@ class LiveBoard:
             departure_board: list[ServiceLocationData] = []
             # Update the departure board every 90 seconds
             if int(time.time()) == next_update:
-                first_run = False
 
                 response = self.__session.get(
                     "https://data.rtt.io/rtt/location",
@@ -128,24 +126,23 @@ class LiveBoard:
                     sys.stdout.write(
                         f"\033c\r{line_one}{line_two}{line_three}{line_four}{line_five}"
                     )
+                    
+                    next_update = int(time.time()) + 90
 
                 elif response.status_code == 401:
                     # Check the request token and update the headers with the new token
                     self.__update_api_request_token()
 
-                    first_run = (
-                        True  # To immediately retry the request with the new token
-                    )
+                    next_update = int(time.time())
 
                 # If no data is found, display a "Check timetable for services" message
                 else:
-                    first_run = False
                     # Clear the screen and output a message to the user to check the timetable for services, in blue text
                     sys.stdout.write(
                         f"\033c\r\033[1;34m{tiploc} Live:\n \033[1;30mCheck timetable for services\n"
                     )
 
-                next_update = int(time.time()) + 90
+                    next_update = int(time.time()) + 90
 
             # Display the current time at the bottom of the board and update it every second
             sys.stdout.write(
