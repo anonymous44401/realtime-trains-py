@@ -8,8 +8,7 @@ from datetime import datetime
 # Import necessary items from other files
 from realtime_trains_py.internal.details import ServiceLocationData
 from realtime_trains_py.internal.errors import AuthenticationError
-from realtime_trains_py.internal.utilities import check_cancel, validate_tiploc
-
+from realtime_trains_py.internal.utilities import check_cancel, validate_tiploc, fmt
 from realtime_trains_py.parsing.parse_service_data import parse_service_data
 
 
@@ -44,16 +43,10 @@ class LiveBoard:
 
     def _get_live(self, tiploc: str, mode: str = "LCD") -> None:
         # Output a helpful message to the user: Press Ctrl+C to close live departure board.
-        sys.stdout.write("\033[1;2mPress Ctrl+C to close live departure board.\n")
+        sys.stdout.write(f"{fmt['grey']}Press Ctrl+C to close live departure board.\n")
         time.sleep(2)
 
         next_update: int = int(time.time())
-
-        params = {
-            "code": f"gb-nr:{validate_tiploc(tiploc)}",
-            "timeTolerance": "false",
-            "detailed": "false",
-        }
 
         while True:
             departure_board: list[ServiceLocationData] = []
@@ -62,7 +55,11 @@ class LiveBoard:
 
                 response = self.__session.get(
                     "https://data.rtt.io/rtt/location",
-                    params=params,
+                    params={
+                        "code": f"gb-nr:{validate_tiploc(tiploc)}",
+                        "timeTolerance": "false",
+                        "detailed": "false",
+                    },
                     headers=self.__headers,
                 )
 
@@ -75,22 +72,22 @@ class LiveBoard:
 
                     # Get the service details for the first 3 services in the departure data and append them to a list
                     for service in departure_data["services"][:3]:
-                        departure_board.append(parse_service_data(service, "station_board"))
+                        departure_board.append(
+                            parse_service_data(service, "station_board")
+                        )
 
                     # Show the first line and update colours based on the given mode. If the mode is DMI.Y, set the text colour to yellow. If the
                     # mode is DMI.W, set the text colour to white. If the mode is LCD, set the text colour to default.
 
                     match mode:
                         case "DMI.Y":
-                            line_one = f"\033[1;93m{requested_location} Live:\n"
+                            line_one = f"{fmt['yellow']}{requested_location} Live:\n"
 
                         case "DMI.W":
-                            line_one = f"\033[1;39m{requested_location} Live:\n"
+                            line_one = f"{fmt['white']}{requested_location} Live:\n"
 
                         case _:
-                            line_one = (
-                                f"\033[1;34m{requested_location} Live:\n\033[1;39m"
-                            )
+                            line_one = f"{fmt['blue']}{requested_location} Live:\n{fmt['white']}"
 
                     line_two = line_three = line_four = line_five = ""
                     first = True
@@ -124,9 +121,9 @@ class LiveBoard:
 
                     # Clear the screen and print the live board information to the screen
                     sys.stdout.write(
-                        f"\033c\r{line_one}{line_two}{line_three}{line_four}{line_five}"
+                        f"{fmt['clear']}{line_one}{line_two}{line_three}{line_four}{line_five}"
                     )
-                    
+
                     next_update = int(time.time()) + 90
 
                 elif response.status_code == 401:
@@ -137,31 +134,31 @@ class LiveBoard:
 
                 # If no data is found, display a "Check timetable for services" message
                 else:
-                    # Clear the screen and output a message to the user to check the timetable for services, in blue text
+                    # Clear the screen and output a message to the user to check the timetable for services
                     sys.stdout.write(
-                        f"\033c\r\033[1;34m{tiploc} Live:\n \033[1;30mCheck timetable for services\n"
+                        f"{fmt['clear']}{fmt['blue']}{tiploc} Live:\n {fmt['grey']}Check timetable for services\n"
                     )
 
                     next_update = int(time.time()) + 90
 
             # Display the current time at the bottom of the board and update it every second
             sys.stdout.write(
-                f"\033[1;3m{datetime.now().strftime('         %H:%M:%S')}\033[K\r"
+                f"{datetime.now().strftime('         %H:%M:%S')}{fmt['c_line']}"
             )
             time.sleep(1)
 
     def __first_service(
         self, service: ServiceLocationData, requested_location: str, mode
     ) -> tuple:
-        params = {
-            "uniqueIdentity": f"gb-nr:{service.service_uid}:{datetime.now().strftime('%Y-%m-%d')}",
-            "timeTolerance": "false",
-            "detailed": "false",
-        }
-
         # Get the service data for the first service
         all_service_data = self.__session.get(
-            "https://data.rtt.io/rtt/service", params=params, headers=self.__headers
+            "https://data.rtt.io/rtt/service",
+            params={
+                "uniqueIdentity": f"gb-nr:{service.service_uid}:{datetime.now().strftime('%Y-%m-%d')}",
+                "timeTolerance": "false",
+                "detailed": "false",
+            },
+            headers=self.__headers,
         ).json()["service"]
 
         line_three = "Calling at: "
@@ -178,14 +175,15 @@ class LiveBoard:
             line_two = f"1st {service.scheduled_departure} {service.terminus} {service.platform}  {service.expected_departure if mode != 'LCD' else check_cancel(service.expected_departure)}\n"
 
         can_add_calling_points = False
-        stops_outputted = (
-            False  # Used to determine if any stops have been added to the line yet
-        )
-        number_of_stops = len(
-            location_data
-        )  # Number of stops in the service, used to determine how to format the calling points line
+
+        # Used to determine if any stops have been added to the line yet
+        stops_outputted = False
+
+        # Number of stops in the service, used to determine how to format the calling points line
+        number_of_stops = len(location_data)
         coaches = 0
         stop_count = 0  # Keep track of the number of stops added
+
         for location in location_data:
             # Get the name of the next stop
             stop_name = location["location"].pop("description")

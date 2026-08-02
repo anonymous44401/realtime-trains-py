@@ -5,7 +5,9 @@ from realtime_trains_py.internal.details import ServiceLocationData, ServiceData
 from realtime_trains_py.parsing.parse_service_data import parse_service_data
 
 
-def create_service_record(service_data, service_uid: str, complexity: str) -> ServiceData:
+def create_service_record(
+    service_data, service_uid: str, complexity: str
+) -> ServiceData:
     # Extract the relevant data from the API response and create a ServiceData data class to return
     operator = service_data["scheduleMetadata"]["operator"].pop("name")
     origin = service_data["origin"][0]["location"].pop("description")

@@ -3,7 +3,6 @@ import json
 import os
 import os.path
 import re
-
 import requests
 
 # Import necessary items from other files
@@ -16,17 +15,31 @@ from realtime_trains_py.internal.errors import (
     InvalidUIDProvided,
 )
 
+# fmt dictionary for formatting codes
+fmt: dict[str, str] = {
+    "white": "\033[1;39m",
+    "grey": "\033[1;2m",
+    "red": "\033[1;31m",
+    "yellow": "\033[1;33m",
+    "green": "\033[1;32m",
+    "blue": "\033[1;34m",
+    "clear": "\033c\r",
+    "c_line": "\033[K\r",
+    "s_strike": "\033[9m",
+    "e_strike": "\033[m",
+}
+
 
 def check_cancel(actual_departure: str) -> str:
     # Check if the service is cancelled or delayed. Change text colour accordingly. If cancelled, set the text to red.
     # If on time, set the text to green. Otherwise, set the text to yellow. At the end of the line, reset the text colour to default.
     if actual_departure == "Cancelled":
-        return f"\033[1;31m{actual_departure}\033[1;39m"
+        return f"{fmt['red']}{actual_departure}{fmt['white']}"
 
     elif actual_departure == "On time":
-        return f"\033[1;32m{actual_departure}\033[1;39m"
+        return f"{fmt['green']}{actual_departure}{fmt['white']}"
 
-    return f"\033[1;33m{actual_departure}\033[1;39m"
+    return f"{fmt['yellow']}{actual_departure}{fmt['white']}"
 
 
 def check_token(request_token: str) -> str:
@@ -44,7 +57,7 @@ def check_token(request_token: str) -> str:
             return response.json()["token"]
 
     return request_token
-   
+
 
 def create_file(name: str, contents) -> None:
     # Create file name by adding directory and type
@@ -68,21 +81,21 @@ def create_parameters(
     time: str | None = None,
     date: str | None = None,
 ) -> dict[str, str]:
-    # If a date is provided validate the date
-    if date is not None:
-        validate_date(date)
-
-    # If a time is provided validate the time
-    if time is not None:
-        time = validate_time(time)
-
     # Create the parameters for the API request based on the parameters provided. The tiploc parameter is required,
     # but the filter_from, filter_to, time, and date parameters are optional. If the optional parameters are not provided,
     # they will be set to an empty string in the parameters dictionary.
     parameters: dict[str, str] = {
         "code": f"gb-nr:{validate_tiploc(tiploc.upper())}",
-        "filterFrom": f"gb-nr:{validate_tiploc(filter_from.upper())}" if filter_from is not None else "",
-        "filterTo": f"gb-nr:{validate_tiploc(filter_to.upper())}" if filter_to is not None else "",
+        "filterFrom": (
+            f"gb-nr:{validate_tiploc(filter_from.upper())}"
+            if filter_from is not None
+            else ""
+        ),
+        "filterTo": (
+            f"gb-nr:{validate_tiploc(filter_to.upper())}"
+            if filter_to is not None
+            else ""
+        ),
         "timeFrom": "",
         "timeTolerance": "false",
         "detailed": "false",
@@ -90,18 +103,18 @@ def create_parameters(
 
     # Add the timeFrom parameter based on the time and date parameters provided
     if time is not None and date is None:
-        parameters["timeFrom"] = time
+        parameters["timeFrom"] = validate_time(time)
 
     elif time is not None and date is not None:
-        parameters["timeFrom"] = f"{date} {time}"
+        parameters["timeFrom"] = f"{validate_date(date)} {validate_time(time)}"
 
     elif time is None and date is not None:
-        parameters["timeFrom"] = date
+        parameters["timeFrom"] = validate_date(date)
 
     return parameters
 
 
-def validate_date(date: str) -> None:
+def validate_date(date: str) -> str:
     # Validate the date provided by the user. The date must be in the format YYYY-MM-DD, and must be a valid date.
     # If the date is not valid, raise an error.
     if (
@@ -112,6 +125,8 @@ def validate_date(date: str) -> None:
         is None
     ):
         raise InvalidDateProvided(date)
+
+    return date
 
 
 def validate_time(time: str) -> str:

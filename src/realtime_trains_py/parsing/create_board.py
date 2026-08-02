@@ -4,12 +4,11 @@ from tabulate import tabulate
 from realtime_trains_py.internal.details import DefaultBoard, ServiceLocationData
 from realtime_trains_py.parsing.parse_service_data import parse_service_data
 
+
 def create_board(service_data, rows, complexity: str) -> DefaultBoard:
     departure_board: list[ServiceLocationData] = []
     departure_board_data: list[list[str | int]] = []
-    requested_location: str = service_data["query"]["location"].pop(
-        "description"
-    )
+    requested_location: str = service_data["query"]["location"].pop("description")
 
     # For each service in the departure data, get the service data
     for service in service_data["services"][:rows]:

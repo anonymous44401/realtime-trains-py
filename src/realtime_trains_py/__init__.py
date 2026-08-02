@@ -8,14 +8,19 @@ from typing import Literal
 
 # Import necessary items from other files
 from realtime_trains_py.internal.details import DefaultBoard, ServiceData
-from realtime_trains_py.internal.errors import APIResponseError, NoDataFound
+from realtime_trains_py.internal.errors import APIResponseError, TooManyArguments, NoDataFound
 from realtime_trains_py.live.live_board import LiveBoard
 from realtime_trains_py.live.live_service import LiveService
-
-from realtime_trains_py.internal.utilities import check_token, create_file, create_parameters, validate_date, validate_uid
-
+from realtime_trains_py.internal.utilities import (
+    check_token,
+    create_file,
+    create_parameters,
+    validate_date,
+    validate_uid,
+)
 from realtime_trains_py.parsing.create_board import create_board
 from realtime_trains_py.parsing.create_service import create_service_record
+from realtime_trains_py.parsing.lookup import location_lookup, code_lookup
 
 # Define the complexity and mode types, and their corresponding mappings to the API parameters
 Complexity = Literal["simple", "simple_normal", "complex"]
@@ -49,8 +54,8 @@ class RealtimeTrainsPy:
                 os.mkdir("realtime_trains_py_data")
 
         self.__headers = {
-            "Accept": "application/json", 
-            "Authorization": f"Bearer {check_token(request_token=request_token)}"
+            "Accept": "application/json",
+            "Authorization": f"Bearer {check_token(request_token=request_token)}",
         }
 
         self.__live_board = LiveBoard(self.__headers, request_token)
@@ -64,6 +69,7 @@ class RealtimeTrainsPy:
         date: str | None = None,
         rows: int | None = None,
         time: str | None = None,
+        raw: bool = False,
     ) -> DefaultBoard:
         """
         ## Get Departures
@@ -75,6 +81,7 @@ class RealtimeTrainsPy:
         :param str date: (Optional) A string representing the date in the format YYYY-MM-DD.
         :param int rows: (Optional) An integer representing the maximum number of rows to return. (Only available for simple complexity.)
         :param str time: (Optional) A string representing the time in the formats HHMM or HH:MM.
+        :param bool raw: (Optional) A boolean representing whether you want raw data.
 
         ---
         ## Examples
@@ -103,8 +110,8 @@ class RealtimeTrainsPy:
         if api_response.status_code == 200:
             service_data = api_response.json()
 
-            if self.__api_complexity == "c":
-                # If complexity is c, save the JSON data to a new .json file in the realtime_trains_py_data folder using the create_file
+            if self.__api_complexity == "c" or raw == True:
+                # If complexity is c or raw is True, save the JSON data to a new .json file in the realtime_trains_py_data folder using the create_file
                 # function and return an empty DefaultBoard data class since the data is saved to a file and not returned as a data class object
                 create_file(
                     f"{tiploc.upper()}_on_{datetime.now().strftime('%Y-%m-%d') if date is None else date}_board_data",
@@ -114,16 +121,20 @@ class RealtimeTrainsPy:
                 return DefaultBoard([], "")
 
             return create_board(service_data, rows, self.__api_complexity)
-            
+
         elif api_response.status_code == 404:
             raise NoDataFound()
 
         else:
-            raise APIResponseError(f"Failed to connect to the RTT API server: {api_response.status_code} \nResponse message: {api_response.text}")
-
+            raise APIResponseError(
+                f"Failed to connect to the RTT API server: {api_response.status_code} \nResponse message: {api_response.text}"
+            )
 
     def get_service(
-        self, service_uid: str, date: str = datetime.now().strftime("%Y-%m-%d")
+        self,
+        service_uid: str,
+        date: str = datetime.now().strftime("%Y-%m-%d"),
+        raw: bool = False,
     ) -> ServiceData:
         """
         ## Get Service
@@ -131,6 +142,7 @@ class RealtimeTrainsPy:
 
         :param str service_uid: (Required) A string representing the Service Unique Identity (UID) code.
         :param str date: (Optional) A string representing the date in the format YYYY-MM-DD.
+        :param bool raw: (Optional) A boolean representing whether you want raw data.
 
         ---
         ## Examples
@@ -138,32 +150,34 @@ class RealtimeTrainsPy:
         get_service(service_uid="G54071", date="2024-11-16")
 
         get_service(service_uid="G26171")
+
+        get_service(service_uid="G26171", raw=True)
         ```
 
         [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki)
         """
         validate_uid(service_uid)
 
-        validate_date(date)
-
         # Get the api response using the auth details provided
         api_response = requests.get(
             "https://data.rtt.io/rtt/service",
-            params={"uniqueIdentity": f"gb-nr:{service_uid}:{date}"},
+            params={"uniqueIdentity": f"gb-nr:{service_uid}:{validate_date(date)}"},
             headers=self.__headers,
         )
 
         if api_response.status_code == 200:
             service_data = api_response.json()["service"]
 
-            if self.__api_complexity == "c":
+            if self.__api_complexity == "c" or raw == True:
                 # Create a new file
                 create_file(f"{service_uid}_on_{date}_service_data", service_data)
 
                 # Return an empty ServiceData data class since the data is saved to a file and not returned as an object
                 return ServiceData("", "", "", "", [], "", "", 0)
 
-            return create_service_record(service_data, service_uid, self.__api_complexity)
+            return create_service_record(
+                service_data, service_uid, self.__api_complexity
+            )
 
         elif api_response.status_code == 404:
             raise NoDataFound()
@@ -199,23 +213,87 @@ class RealtimeTrainsPy:
         """
         ## Watch Service
 
-        # NOT AVAILABLE (YET)
+        ### NEW for version 2027.2.0
 
         This function retrieves the service information for a given service UID on a provided date. The service information is updated every 90 seconds.
         To stop watching the service, press Ctrl + C.
 
         :param str service_uid: (Required) A string representing the Service Unique Identity (UID) code.
         :param Mode mode: (Optional) A string representing the mode of the live board.
-        Choose from: `DMI_yellow`, `DMI_white` or `LCD`. If not provided, the default is `LCD`.
+        Choose from: `LCD`. If not provided, the default is `LCD`. (More coming soon)
 
         ---
         ## Examples
         ```python
-        watch_service(service_uid="G54071", mode="DMI_yellow")
+        watch_service(service_uid="G54071") # Watch G54071
 
-        watch_service(service_uid="G26171")
+        watch_service(service_uid="G26171") # Watch G26171
         ```
 
         [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki)
         """
-        self.__live_service.watch_service(service_uid=service_uid)
+        self.__live_service.watch_service(service_uid=service_uid, mode=_MODE_MAP[mode])
+
+    def lookup(self, location: str | None = None, code: str | None = None) -> None:
+        """
+        ## Lookup
+
+        ### NEW for version 2027.2.0
+
+        This function retrieves the CRS and/or TIPLOC codes for a given location.
+
+        :param str location: (Optional) A string representing the lookup location.
+        :param str code: (Optional) A string representing the lookup CRS code or TIPLOC.
+
+        ---
+        ## Examples
+        ```python
+        lookup(location="Stevenage")
+
+        lookup(code="SVG")
+
+        lookup() # Get all CRS and TIPLOCs saved to a new .json file
+        ```
+
+        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki)
+        """
+        # Send API request
+        api_response = requests.get(
+            "https://data.rtt.io/data/locations_ungrouped",
+            headers=self.__headers,
+        )
+
+        # Set raw to false if a location is given. Otherwise set raw to true
+        if location is not None and code is not None:
+            raise TooManyArguments(
+                f" Method: \'lookup\' only takes one argument. Remove one of: \n - Code: \'{code}\' \n - Location: \'{location}\'."
+            )
+
+        elif (location is not None and code is None) or (
+            code is not None and location is None
+        ):
+            raw = False
+
+        else:
+            raw = True
+
+        if api_response.status_code == 200:
+            if raw == True:
+                # Create a new file
+                create_file(f"locations_ungrouped_data", api_response.json())
+
+            elif location is not None:
+                location_lookup(location=location, data=api_response.json())
+
+            elif code is not None:
+                code_lookup(code=code, data=api_response.json())
+
+            return
+
+        elif api_response.status_code == 404:
+            raise NoDataFound()
+
+        else:
+            raise APIResponseError(
+                f"Failed to connect to the RTT API server: {api_response.status_code} \nResponse message: {api_response.text}"
+            )

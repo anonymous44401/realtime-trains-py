@@ -55,3 +55,10 @@ class NoDataFound(Exception):
         super().__init__(
             "\nrealtime-trains-py error:\nNo data found for the request made. Please check your parameters and try again."
         )
+
+
+class TooManyArguments(Exception):
+    def __init__(self, message: str) -> None:
+        super().__init__(
+            f"\nrealtime-trains-py error:\nToo too many arguments provided for this method. \n{message}"
+        )

@@ -4,9 +4,11 @@
 
 We release updates and patches regularly. Below are the versions of this project that are actively supported and maintained. If a version isn't shown in this table, then it is no longer supported. Specific versions that will no longer be supported in the next few months will be shown too.
 
-| Version (realtime-trains-py)  | Supported          |
-|-------------------------------|--------------------|
-| 2027.1.x                      | :white_check_mark: Still supported |
+| Version (realtime-trains-py)  | Supported                      |
+|-------------------------------|--------------------------------|
+| 2027.2.x                      | :white_check_mark: Coming soon |
+| 2027.2.xbx                    | :white_check_mark: Supported   |
+| 2027.1.x                      | :warning: Ending soon          |
 
 If you are using an unsupported version, please upgrade to a supported version to receive the latest security updates.
 

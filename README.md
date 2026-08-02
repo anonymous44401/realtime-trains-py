@@ -2,7 +2,7 @@
 
 ---
 
-Maintained and managed by anonymous44401
+Maintained and managed by anonymous4401/anonymous44401
 
 ![PyPI](https://img.shields.io/pypi/v/realtime-trains-py) ![License](https://img.shields.io/github/license/anonymous44401/realtime-trains-py) ![Issues](https://img.shields.io/github/issues/anonymous44401/realtime-trains-py) ![Downloads](https://img.shields.io/pypi/dm/realtime-trains-py)
 
@@ -56,6 +56,25 @@ You'll need an account for the [Realtime Trains API](https://api-portal.rtt.io/w
 
 
 ## Examples
+
+### Some features show below are only available for BETA versions. Do not attempt to use them in stable versions.
+
+#### **NEW!** `VERSION 2027.2.0 [BETA]` Watch Service
+###### The example below will display a live service board for G28171. 
+```python
+rtt.watch_service(service_uid="G28171")
+```
+
+#### **NEW!** `VERSION 2027.2.0 [BETA]` Lookup
+###### The example below will display all CRS codes and TIPLOCs for London Liverpool Street. 
+```python
+rtt.lookup(location="London Liverpool Street")
+```
+
+###### The example below will display the location for LST (London Liverpool Street). 
+```python
+rtt.lookup(code="LST")
+```
 
 #### Get Live
 ###### The example below will display a live departure board for Ely. 

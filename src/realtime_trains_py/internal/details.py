@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+
 # Service Location Data dataclass
 @dataclass(slots=True, frozen=True)
 class ServiceLocationData:
@@ -15,6 +16,7 @@ class ServiceLocationData:
     origin: str
     service_uid: str
 
+
 # Service Data dataclass
 @dataclass(slots=True, frozen=True)
 class ServiceData:
@@ -26,6 +28,7 @@ class ServiceData:
     start_time: str
     end_time: str
     coaches: int
+
 
 # Default Board dataclass
 @dataclass(slots=True, frozen=True)

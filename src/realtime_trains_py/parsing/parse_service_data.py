@@ -3,7 +3,9 @@ from typing import Literal
 from realtime_trains_py.internal.details import ServiceLocationData
 
 
-def parse_service_data(data, type: Literal["calling_point", "station_board"]) -> ServiceLocationData:
+def parse_service_data(
+    data, type: Literal["calling_point", "station_board"]
+) -> ServiceLocationData:
     # Parse data from the API response and return a ServiceLocationData data class based on the type parameter.
 
     # Set initial values for the service details, which will be updated if the relevant data exists in the API response
@@ -26,17 +28,23 @@ def parse_service_data(data, type: Literal["calling_point", "station_board"]) ->
         # expected arrival time accordingly. If the realtime data matches the scheduled arrival time, set the expected
         # arrival time to "On time".
         if "scheduleAdvertised" in temporal_data["arrival"]:
-            scheduled_arrival = temporal_data["arrival"]["scheduleAdvertised"].split("T")[1][:5]
+            scheduled_arrival = temporal_data["arrival"]["scheduleAdvertised"].split(
+                "T"
+            )[1][:5]
 
         if temporal_data["arrival"]["isCancelled"]:
             expected_arrival = "Cancelled"
 
         else:
             if "realtimeActual" in temporal_data["arrival"]:
-                expected_arrival = temporal_data["arrival"]["realtimeActual"].split("T")[1][:5]
+                expected_arrival = temporal_data["arrival"]["realtimeActual"].split(
+                    "T"
+                )[1][:5]
 
             elif "realtimeForecast" in temporal_data["arrival"]:
-                expected_arrival = temporal_data["arrival"]["realtimeForecast"].split("T")[1][:5]
+                expected_arrival = temporal_data["arrival"]["realtimeForecast"].split(
+                    "T"
+                )[1][:5]
 
             expected_arrival = (
                 "On time"
@@ -51,17 +59,23 @@ def parse_service_data(data, type: Literal["calling_point", "station_board"]) ->
         # expected departure time accordingly. If the realtime data matches the scheduled departure time, set the expected
         # departure time to "On time".
         if "scheduleAdvertised" in temporal_data["departure"]:
-            scheduled_departure = temporal_data["departure"]["scheduleAdvertised"].split("T")[1][:5]
+            scheduled_departure = temporal_data["departure"][
+                "scheduleAdvertised"
+            ].split("T")[1][:5]
 
         if temporal_data["departure"]["isCancelled"]:
             expected_departure = "Cancelled"
 
         else:
             if "realtimeActual" in temporal_data["departure"]:
-                expected_departure = temporal_data["departure"]["realtimeActual"].split("T")[1][:5]
+                expected_departure = temporal_data["departure"]["realtimeActual"].split(
+                    "T"
+                )[1][:5]
 
             elif "realtimeForecast" in temporal_data["departure"]:
-                expected_departure = temporal_data["departure"]["realtimeForecast"].split("T")[1][:5]
+                expected_departure = temporal_data["departure"][
+                    "realtimeForecast"
+                ].split("T")[1][:5]
 
             expected_departure = (
                 "On time"
@@ -86,12 +100,12 @@ def parse_service_data(data, type: Literal["calling_point", "station_board"]) ->
 
             else:
                 line = location_data["line"]["actual"]
-                
+
         # If a number of coaches is given in the location data, get the number of coaches for the calling point. This is
         # usually the same throughout the service, but if it's given for any other calling point, it can mean that the service
         # gains or loses coaches.
         if "numberOfVehicles" in data["locationMetadata"]:
-            coaches = data["locationMetadata"].pop("numberOfVehicles")    
+            coaches = data["locationMetadata"].pop("numberOfVehicles")
 
         return ServiceLocationData(
             stop_name=data["location"].pop("description"),
@@ -104,9 +118,9 @@ def parse_service_data(data, type: Literal["calling_point", "station_board"]) ->
             coaches=coaches,
             terminus="",
             origin="",
-            service_uid="-"
+            service_uid="-",
         )
-    
+
     return ServiceLocationData(
         stop_name="-",
         scheduled_arrival=scheduled_arrival,
@@ -122,6 +136,5 @@ def parse_service_data(data, type: Literal["calling_point", "station_board"]) ->
             if "numberOfVehicles" in location_data
             else 0
         ),
-        line=""
+        line="",
     )
-
