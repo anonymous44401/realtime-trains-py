@@ -40,6 +40,7 @@ dependencies = [
 [project.urls]
 Repository = "https://github.com/anonymous44401/realtime-trains-py"
 Documentation = "https://github.com/anonymous44401/realtime-trains-py/wiki"
+Discord = "https://discord.gg/Kv2FAn7SVf"
 Issues = "https://github.com/anonymous44401/realtime-trains-py/issues"
 
 [build-system]

@@ -15,6 +15,8 @@ Maintained and managed by anonymous4401/anonymous44401
 
 [Repository](https://github.com/anonymous44401/realtime-trains-py)
 
+[Discord](https://discord.gg/Kv2FAn7SVf)
+
 ## About this package
 
 **realtime-trains-py** is an open-source python API Wrapper designed to allow you to access data directly from the Realtime Trains API, in a simple and user-friendly way. This package includes three different [complexity modes](https://github.com/anonymous44401/realtime-trains-py/wiki/Complexity) that allow you to customise how you want to see the data provided by the API.
