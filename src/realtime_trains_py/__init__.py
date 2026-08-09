@@ -1,14 +1,19 @@
 # Import external libraries
 import os
-
 import requests
 
 from datetime import datetime
 from typing import Literal
 
 # Import necessary items from other files
+from realtime_trains_py.async_files.async_live_board import AsyncLiveBoard
+from realtime_trains_py.async_files.async_live_service import AsyncLiveService
 from realtime_trains_py.internal.details import DefaultBoard, ServiceData
-from realtime_trains_py.internal.errors import APIResponseError, TooManyArguments, NoDataFound
+from realtime_trains_py.internal.errors import (
+    APIResponseError,
+    TooManyArguments,
+    NoDataFound,
+)
 from realtime_trains_py.live.live_board import LiveBoard
 from realtime_trains_py.live.live_service import LiveService
 from realtime_trains_py.internal.utilities import (
@@ -59,7 +64,9 @@ class RealtimeTrainsPy:
         }
 
         self.__live_board = LiveBoard(self.__headers, request_token)
+        self.__async_live_board = AsyncLiveBoard(self.__headers, request_token)
         self.__live_service = LiveService(self.__headers, request_token)
+        self.__async_live_service = AsyncLiveService(self.__headers, request_token)
 
     def get_departures(
         self,
@@ -110,7 +117,10 @@ class RealtimeTrainsPy:
         if api_response.status_code == 200:
             service_data = api_response.json()
 
-            if self.__api_complexity == "c" or raw == True:
+            if raw == True:
+                return service_data
+
+            elif self.__api_complexity == "c":
                 # If complexity is c or raw is True, save the JSON data to a new .json file in the realtime_trains_py_data folder using the create_file
                 # function and return an empty DefaultBoard data class since the data is saved to a file and not returned as a data class object
                 create_file(
@@ -168,7 +178,10 @@ class RealtimeTrainsPy:
         if api_response.status_code == 200:
             service_data = api_response.json()["service"]
 
-            if self.__api_complexity == "c" or raw == True:
+            if raw == True:
+                return service_data
+
+            elif self.__api_complexity == "c":
                 # Create a new file
                 create_file(f"{service_uid}_on_{date}_service_data", service_data)
 
@@ -209,6 +222,30 @@ class RealtimeTrainsPy:
         """
         self.__live_board._get_live(tiploc=tiploc.upper(), mode=_MODE_MAP[mode])
 
+    async def get_live_async(self, tiploc: str, mode: Mode = "LCD") -> None:
+        """
+        ## ASYNC Get Live
+        This function retrieves the live departure board for a given station. The board is updated every 90 seconds.
+        To exit the board, press Ctrl + C.
+
+        :param str tiploc: (Required) A string representing the Timing Point Location Code (TIPLOC) or Computer Reservation Code (CRS) of the station.
+        :param Mode mode: (Optional) A string representing the mode of the live board.
+        Choose from: `DMI_yellow`, `DMI_white` or `LCD`. If not provided, the default is `LCD`.
+
+        ---
+        ## Examples
+        ```python
+        get_live(tiploc="ELYY") # Live board for Ely
+
+        get_live(tiploc="PBRO", mode="DMI_yellow") # Live board for Peterborough, with mode set to DMI (Yellow)
+        ```
+
+        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki)
+        """
+        await self.__async_live_board._get_live(
+            tiploc=tiploc.upper(), mode=_MODE_MAP[mode]
+        )
+
     def watch_service(self, service_uid: str, mode: Mode = "LCD") -> None:
         """
         ## Watch Service
@@ -233,6 +270,33 @@ class RealtimeTrainsPy:
         [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki)
         """
         self.__live_service.watch_service(service_uid=service_uid, mode=_MODE_MAP[mode])
+
+    async def watch_service_async(self, service_uid: str, mode: Mode = "LCD") -> None:
+        """
+        ## ASYNC Watch Service
+
+        ### NEW for version 2027.2.0
+
+        This function retrieves the service information for a given service UID on a provided date. The service information is updated every 90 seconds.
+        To stop watching the service, press Ctrl + C.
+
+        :param str service_uid: (Required) A string representing the Service Unique Identity (UID) code.
+        :param Mode mode: (Optional) A string representing the mode of the live board.
+        Choose from: `LCD`. If not provided, the default is `LCD`. (More coming soon)
+
+        ---
+        ## Examples
+        ```python
+        watch_service(service_uid="G54071") # Watch G54071
+
+        watch_service(service_uid="G26171") # Watch G26171
+        ```
+
+        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki)
+        """
+        await self.__async_live_service.watch_service(
+            service_uid=service_uid, mode=_MODE_MAP[mode]
+        )
 
     def lookup(self, location: str | None = None, code: str | None = None) -> None:
         """
@@ -266,7 +330,7 @@ class RealtimeTrainsPy:
         # Set raw to false if a location is given. Otherwise set raw to true
         if location is not None and code is not None:
             raise TooManyArguments(
-                f" Method: \'lookup\' only takes one argument. Remove one of: \n - Code: \'{code}\' \n - Location: \'{location}\'."
+                f" Method: 'lookup' only takes one argument. Remove one of: \n - Code: '{code}' \n - Location: '{location}'."
             )
 
         elif (location is not None and code is None) or (
@@ -279,8 +343,7 @@ class RealtimeTrainsPy:
 
         if api_response.status_code == 200:
             if raw == True:
-                # Create a new file
-                create_file(f"locations_ungrouped_data", api_response.json())
+                return api_response.json()
 
             elif location is not None:
                 location_lookup(location=location, data=api_response.json())

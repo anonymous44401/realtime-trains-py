@@ -8,11 +8,11 @@ def location_lookup(location: str, data: Any):
     # If they are equal, check if there's a shortCode (CRS code). Add this to codes if
     # there is one. All locations have a longCode (TIPLOC), so add this to codes
     for stop in data["locations"]:
-        if stop["description"].lower() == location.lower():
+        if location.lower() in stop["description"].lower():
             if "shortCode" in stop:
-                codes.append(stop["shortCode"])
+                codes.append(f"{stop['shortCode']} ({stop['description']})")
 
-            codes.append(stop["longCode"])
+            codes.append(f"{stop['longCode']} ({stop['description']})")
 
     # If some data has been found, print a list of the CRS codes and TIPLOCs. If no data
     # was found, print a message saying no codes were found.

@@ -1,9 +1,9 @@
 # Import external libraries
 import json
-import os
-import os.path
 import re
 import requests
+
+from os import path
 
 # Import necessary items from other files
 from realtime_trains_py.internal.errors import (
@@ -30,7 +30,7 @@ fmt: dict[str, str] = {
 }
 
 
-def check_cancel(actual_departure: str) -> str:
+def check_cancel(actual_departure: str, remove_exp: bool = False) -> str:
     # Check if the service is cancelled or delayed. Change text colour accordingly. If cancelled, set the text to red.
     # If on time, set the text to green. Otherwise, set the text to yellow. At the end of the line, reset the text colour to default.
     if actual_departure == "Cancelled":
@@ -38,6 +38,9 @@ def check_cancel(actual_departure: str) -> str:
 
     elif actual_departure == "On time":
         return f"{fmt['green']}{actual_departure}{fmt['white']}"
+
+    elif remove_exp:
+        return f"{fmt['yellow']}{actual_departure.split(" ")[-1]}{fmt['white']}"
 
     return f"{fmt['yellow']}{actual_departure}{fmt['white']}"
 
@@ -64,7 +67,7 @@ def create_file(name: str, contents) -> None:
     file_name: str = f"realtime_trains_py_data/{name}.json"
 
     # Check if file exists
-    if not os.path.isfile(file_name):
+    if not path.isfile(file_name):
         with open(file_name, "x", encoding="utf-8") as file:
             json.dump(contents, file, ensure_ascii=False, indent=4)
             print(f"Data saved to file: \n  {file_name}.")

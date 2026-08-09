@@ -7,6 +7,7 @@ Maintained and managed by anonymous4401/anonymous44401
 ![PyPI](https://img.shields.io/pypi/v/realtime-trains-py) ![License](https://img.shields.io/github/license/anonymous44401/realtime-trains-py) ![Issues](https://img.shields.io/github/issues/anonymous44401/realtime-trains-py) ![Downloads](https://img.shields.io/pypi/dm/realtime-trains-py)
 
 ### Quick links
+
 [Latest release](https://github.com/anonymous44401/realtime-trains-py/releases/latest)
 
 [Pre-releases](https://test.pypi.org/project/realtime-trains-py/)
@@ -23,10 +24,11 @@ Maintained and managed by anonymous4401/anonymous44401
 
 This package can be used for anything railway related. Whether you're a rail enthusiast or commuter, this package can be used for all your purposes. The package can be used in **personal** applications or for **personal** rail data access. For **commercial** use, you should contact [Realtime Trains](https://www.realtimetrains.co.uk/). More information can be found on their [API home page](https://api-portal.rtt.io/welcome/)
 
-This package is not affiliated with [Realtime Trains](https://www.realtimetrains.co.uk/). 
+This package is not affiliated with [Realtime Trains](https://www.realtimetrains.co.uk/).
 
 ## What can I do with this package?
-This package allows you to access data directly from the [Realtime Trains API](https://api-portal.rtt.io/welcome/) using one of [three complexities](https://github.com/anonymous44401/realtime-trains-py/wiki/Complexity). Each complexity mode gives you access to different data the API offers. 
+
+This package allows you to access data directly from the [Realtime Trains API](https://api-portal.rtt.io/welcome/) using one of [three complexities](https://github.com/anonymous44401/realtime-trains-py/wiki/Complexity). Each complexity mode gives you access to different data the API offers.
 
 For the most flexibility, you can use **simple** mode, the recommended mode. Simple mode allows you to access a fair amount of the data available from the Realtime Trains API. This mode is recommended for those that want a manageable amount of information while keeping it easy to read. Use `complexity="simple"`.
 
@@ -37,69 +39,99 @@ For the most freedom with the API, you can use **complex** mode. Complex mode le
 ## Installation Instructions
 
 To install the package, simply run the following command in your terminal:
+
 ```
 $ pip install realtime-trains-py
-``` 
-Alternatively, you can clone, fork or download the [repository](https://github.com/anonymous44401/realtime-trains-py) onto your device. 
+```
+
+Alternatively, you can clone, fork or download the [repository](https://github.com/anonymous44401/realtime-trains-py) onto your device.
 
 Once installed, you can import the package. Place the lines below in your file or you can run them directly in your terminal.
+
 ```python
 from realtime_trains_py import RealtimeTrainsPy
 
 rtt = RealtimeTrainsPy(
-    request_token="<your_request_token>", 
+    request_token="<your_request_token>",
     complexity="<your_choice>"
 )
 ```
 
 Check out our full [setup guide](https://github.com/anonymous44401/realtime-trains-py/wiki/Setup) for more help setting up.
 
-You'll need an account for the [Realtime Trains API](https://api-portal.rtt.io/welcome/) to use this package. You can sign up for free at the [API home page](https://api-portal.rtt.io/welcome/). 
-
+You'll need an account for the [Realtime Trains API](https://api-portal.rtt.io/welcome/) to use this package. You can sign up for free at the [API home page](https://api-portal.rtt.io/welcome/).
 
 ## Examples
 
 ### Some features show below are only available for BETA versions. Do not attempt to use them in stable versions.
 
 #### **NEW!** `VERSION 2027.2.0 [BETA]` Watch Service
-###### The example below will display a live service board for G28171. 
+
+###### The example below will display a live service board for G28171.
+
 ```python
 rtt.watch_service(service_uid="G28171")
 ```
 
+#### **NEW!** `VERSION 2027.2.0 [BETA]` Watch Service (Async)
+
+###### The example below will display a live service board for G28171.
+
+```python
+import asyncio
+await rtt.watch_service(service_uid="G28171")
+```
+
 #### **NEW!** `VERSION 2027.2.0 [BETA]` Lookup
-###### The example below will display all CRS codes and TIPLOCs for London Liverpool Street. 
+
+###### The example below will display all CRS codes and TIPLOCs for London Liverpool Street.
+
 ```python
 rtt.lookup(location="London Liverpool Street")
 ```
 
-###### The example below will display the location for LST (London Liverpool Street). 
+###### The example below will display the location for LST (London Liverpool Street).
+
 ```python
 rtt.lookup(code="LST")
 ```
 
+#### **NEW!** `VERSION 2027.2.0 [BETA]` Get Live (Async)
+
+###### The example below will display a live service board for G28171.
+
+```python
+import asyncio
+await rtt.watch_service(service_uid="G28171")
+```
+
 #### Get Live
-###### The example below will display a live departure board for Ely. 
+
+###### The example below will display a live departure board for Ely.
+
 ```python
 rtt.get_live(tiploc="ELYY")
 ```
 
 #### Get Departures
-###### The example below will return up to 15 rows on the departure board for London King's Cross at the time you run the program. 
+
+###### The example below will return up to 15 rows on the departure board for London King's Cross at the time you run the program.
+
 ```python
 rtt.get_departures(tiploc="KNGX", rows=15)
 ```
 
 #### Get Service
-###### The example below will return the service information of G28171 at the time you run the program. 
+
+###### The example below will return the service information of G28171 at the time you run the program.
+
 ```python
 rtt.get_service(service_uid="G28171")
 ```
 
-More in-depth examples can be found on our [examples page](https://github.com/anonymous44401/realtime-trains-py/wiki/Examples). 
+More in-depth examples can be found on our [examples page](https://github.com/anonymous44401/realtime-trains-py/wiki/Examples).
 
-
-## Licensing 
+## Licensing
 
 The **realtime-trains-py** API Wrapper uses an MIT License.
 
