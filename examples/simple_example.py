@@ -2,8 +2,7 @@ from realtime_trains_py import RealtimeTrainsPy
 
 # Initialise RealtimeTrainsPy
 rtt = RealtimeTrainsPy(
-    request_token="YOUR_REQUEST_TOKEN", # <----- CHANGE ME
-    complexity="simple"
+    request_token="YOUR_REQUEST_TOKEN", complexity="simple"  # <----- CHANGE ME
 )
 
 #### EXAMPLE 1 ####
@@ -28,7 +27,6 @@ rtt.get_departures(tiploc="NRCH", rows=5)
 # ├──────────────┼──────────────┼─────────────────────────┼────────────────┼────────────┼───────────┼───────────┼─────────────┼───────────────┤
 # │ 23:31        │ -            │ Lowestoft               │ Norwich        │ 4B         │         3 │ Exp 23:30 │ -           │ P01748        │
 # ╰──────────────┴──────────────┴─────────────────────────┴────────────────┴────────────┴───────────┴───────────┴─────────────┴───────────────╯
-
 
 
 #### EXAMPLE 2 ####
@@ -65,16 +63,15 @@ rtt.get_departures(tiploc="HULL", date="2026-05-20", time="1000", rows=10)
 # ╰──────────────┴──────────────┴─────────────┴───────────────┴────────────┴───────────┴───────────┴─────────────┴───────────────╯
 
 
-
 #### EXAMPLE 3 ####
 
-# Query for getting the details of the service with service_uid "W47587" 
+# Query for getting the details of the service with service_uid "W47587"
 rtt.get_service("C11143")
 
 ### EXAMPLE OUTPUT ###
-# C11143 
-#   23:59 Stratford (London) to Willesden Junction 
-#   Operated by London Overground 
+# C11143
+#   23:59 Stratford (London) to Willesden Junction
+#   Operated by London Overground
 
 #   Generated at 23:06:01 on 27/05/26.
 # ╭───────────────────────────┬─────────────────────┬────────────────────┬────────────┬────────┬───────────────────────┬──────────────────────╮

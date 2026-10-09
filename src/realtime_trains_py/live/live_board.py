@@ -42,7 +42,7 @@ class LiveBoard:
             else:
                 self.__headers["Authorization"] = f"Bearer {response.json()['token']}"
 
-    def _get_live(self, tiploc: str, mode: str = "LCD") -> None:
+    def _get_live(self, tiploc: str, mode: str = "LCD", refresh: int = 90) -> None:
         # Output a helpful message to the user: Press Ctrl+C to close live departure board.
         sys.stdout.write(f"{fmt['grey']}Press Ctrl+C to close live departure board.\n")
         time.sleep(2)
@@ -51,7 +51,7 @@ class LiveBoard:
 
         while True:
             departure_board: list[ServiceLocationData] = []
-            # Update the departure board every 90 seconds
+            # Update the departure board every refresh time
             if int(time.time()) == next_update:
 
                 response = self.__session.get(
@@ -137,7 +137,7 @@ class LiveBoard:
                         f"{fmt['clear']}{line_one}{line_two}{line_three}{line_four}"
                     )
 
-                    next_update = int(time.time()) + 90
+                    next_update = int(time.time()) + refresh
 
                 elif response.status_code == 401:
                     # Check the request token and update the headers with the new token
@@ -152,7 +152,7 @@ class LiveBoard:
                         f"{fmt['clear']}{fmt['blue']}{tiploc} Live:\n {fmt['grey']}Check timetable for services\n"
                     )
 
-                    next_update = int(time.time()) + 90
+                    next_update = int(time.time()) + refresh
 
             # Display the current time at the bottom of the board and update it every second
             sys.stdout.write(

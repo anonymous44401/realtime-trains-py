@@ -41,7 +41,7 @@ class LiveService:
             else:
                 self.__headers["Authorization"] = f"Bearer {response.json()['token']}"
 
-    def watch_service(self, service_uid: str, mode: str) -> None:
+    def watch_service(self, service_uid: str, mode: str, refresh: int = 90) -> None:
         # Output a helpful message to the user: Press Ctrl+C to close live departure board.
         sys.stdout.write(f"{fmt['grey']}Press Ctrl+C to stop watching this service.\n")
         time.sleep(2)
@@ -52,7 +52,7 @@ class LiveService:
         validate_uid(service_uid)
 
         while True:
-            # Update the board every 90 seconds
+            # Update the board every refresh time
             if int(time.time()) == next_update:
 
                 # Send API request
@@ -72,11 +72,11 @@ class LiveService:
 
                     # Clear the board and arrange the output
                     sys.stdout.write(
-                        f"{fmt['clear']}{arrange_output(service=service_record)}"
+                        f"{fmt['clear']}{arrange_output(service=service_record, mode=mode)}"
                     )
 
-                    # Add 90 to next update
-                    next_update += 90
+                    # Add refresh to next update
+                    next_update += refresh
 
                 elif response.status_code == 401:
                     # Check the request token and update the headers with the new token
@@ -91,7 +91,7 @@ class LiveService:
                         f"{fmt['clear']}{fmt['blue']}{service_uid}:\n {fmt['grey']}Check timetable for services\n"
                     )
 
-                    next_update += 90
+                    next_update += refresh
 
             # Display the current time at the bottom of the board and update it every second
             sys.stdout.write(

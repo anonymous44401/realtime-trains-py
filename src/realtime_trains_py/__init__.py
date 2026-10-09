@@ -49,8 +49,9 @@ class RealtimeTrainsPy:
         rtt = RealtimeTrainsPy(request_token="<a_request_token>", complexity="complex")
         ```
 
-        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki)
+        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
+
         self.__api_complexity = _COMPLEXITY_MAP[complexity]
 
         if self.__api_complexity == "c":
@@ -105,8 +106,9 @@ class RealtimeTrainsPy:
         get_departures(tiploc="YORK", date="2024-11-16", time="1800")
         ```
 
-        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki)
+        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
+
         # Get the API response using the auth details provided
         api_response = requests.get(
             "https://data.rtt.io/rtt/location",
@@ -164,8 +166,9 @@ class RealtimeTrainsPy:
         get_service(service_uid="G26171", raw=True)
         ```
 
-        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki)
+        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
+
         validate_uid(service_uid)
 
         # Get the api response using the auth details provided
@@ -200,7 +203,7 @@ class RealtimeTrainsPy:
                 f"Failed to connect to the RTT API server: {api_response.status_code} \nResponse message: {api_response.text}"
             )
 
-    def get_live(self, tiploc: str, mode: Mode = "LCD") -> None:
+    def get_live(self, tiploc: str, mode: Mode = "LCD", refresh: int = 90) -> None:
         """
         ## Get Live
         This function retrieves the live departure board for a given station. The board is updated every 90 seconds.
@@ -209,6 +212,9 @@ class RealtimeTrainsPy:
         :param str tiploc: (Required) A string representing the Timing Point Location Code (TIPLOC) or Computer Reservation Code (CRS) of the station.
         :param Mode mode: (Optional) A string representing the mode of the live board.
         Choose from: `DMI_yellow`, `DMI_white` or `LCD`. If not provided, the default is `LCD`.
+        :param int refresh: (Optional) An integer representing your custom refresh time. If not provided, the default is 90.
+
+        _The recommended refresh time is 90 seconds to prevent API overuse and being rate limited. Using a refresh time that is less than 90 is done at your own risk._
 
         ---
         ## Examples
@@ -218,11 +224,16 @@ class RealtimeTrainsPy:
         get_live(tiploc="PBRO", mode="DMI_yellow") # Live board for Peterborough, with mode set to DMI (Yellow)
         ```
 
-        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki)
+        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
-        self.__live_board._get_live(tiploc=tiploc.upper(), mode=_MODE_MAP[mode])
 
-    async def get_live_async(self, tiploc: str, mode: Mode = "LCD") -> None:
+        self.__live_board._get_live(
+            tiploc=tiploc.upper(), mode=_MODE_MAP[mode], refresh=refresh
+        )
+
+    async def get_live_async(
+        self, tiploc: str, mode: Mode = "LCD", refresh: int = 90
+    ) -> None:
         """
         ## ASYNC Get Live
         This function retrieves the live departure board for a given station. The board is updated every 90 seconds.
@@ -231,6 +242,9 @@ class RealtimeTrainsPy:
         :param str tiploc: (Required) A string representing the Timing Point Location Code (TIPLOC) or Computer Reservation Code (CRS) of the station.
         :param Mode mode: (Optional) A string representing the mode of the live board.
         Choose from: `DMI_yellow`, `DMI_white` or `LCD`. If not provided, the default is `LCD`.
+        :param int refresh: (Optional) An integer representing your custom refresh time. If not provided, the default is 90.
+
+        _The recommended refresh time is 90 seconds to prevent API overuse and being rate limited. Using a refresh time that is less than 90 is done at your own risk._
 
         ---
         ## Examples
@@ -240,13 +254,16 @@ class RealtimeTrainsPy:
         get_live(tiploc="PBRO", mode="DMI_yellow") # Live board for Peterborough, with mode set to DMI (Yellow)
         ```
 
-        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki)
+        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
+
         await self.__async_live_board._get_live(
-            tiploc=tiploc.upper(), mode=_MODE_MAP[mode]
+            tiploc=tiploc.upper(), mode=_MODE_MAP[mode], refresh=refresh
         )
 
-    def watch_service(self, service_uid: str, mode: Mode = "LCD") -> None:
+    def watch_service(
+        self, service_uid: str, mode: Mode = "LCD", refresh: int = 90
+    ) -> None:
         """
         ## Watch Service
 
@@ -257,7 +274,10 @@ class RealtimeTrainsPy:
 
         :param str service_uid: (Required) A string representing the Service Unique Identity (UID) code.
         :param Mode mode: (Optional) A string representing the mode of the live board.
-        Choose from: `LCD`. If not provided, the default is `LCD`. (More coming soon)
+        Choose from: `DMI_yellow`, `DMI_white` or `LCD`. If not provided, the default is `LCD`.
+        :param int refresh: (Optional) An integer representing your custom refresh time. If not provided, the default is 90.
+
+        _The recommended refresh time is 90 seconds to prevent API overuse and being rate limited. Using a refresh time that is less than 90 is done at your own risk._
 
         ---
         ## Examples
@@ -267,11 +287,16 @@ class RealtimeTrainsPy:
         watch_service(service_uid="G26171") # Watch G26171
         ```
 
-        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki)
+        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
-        self.__live_service.watch_service(service_uid=service_uid, mode=_MODE_MAP[mode])
 
-    async def watch_service_async(self, service_uid: str, mode: Mode = "LCD") -> None:
+        self.__live_service.watch_service(
+            service_uid=service_uid, mode=_MODE_MAP[mode], refresh=refresh
+        )
+
+    async def watch_service_async(
+        self, service_uid: str, mode: Mode = "LCD", refresh: int = 90
+    ) -> None:
         """
         ## ASYNC Watch Service
 
@@ -282,7 +307,10 @@ class RealtimeTrainsPy:
 
         :param str service_uid: (Required) A string representing the Service Unique Identity (UID) code.
         :param Mode mode: (Optional) A string representing the mode of the live board.
-        Choose from: `LCD`. If not provided, the default is `LCD`. (More coming soon)
+        Choose from: `DMI_yellow`, `DMI_white` or `LCD`. If not provided, the default is `LCD`.
+        :param int refresh: (Optional) An integer representing your custom refresh time. If not provided, the default is 90.
+
+        _The recommended refresh time is 90 seconds to prevent API overuse and being rate limited. Using a refresh time that is less than 90 is done at your own risk._
 
         ---
         ## Examples
@@ -292,10 +320,11 @@ class RealtimeTrainsPy:
         watch_service(service_uid="G26171") # Watch G26171
         ```
 
-        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki)
+        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
+
         await self.__async_live_service.watch_service(
-            service_uid=service_uid, mode=_MODE_MAP[mode]
+            service_uid=service_uid, mode=_MODE_MAP[mode], refresh=refresh
         )
 
     def lookup(self, location: str | None = None, code: str | None = None) -> None:
@@ -319,8 +348,9 @@ class RealtimeTrainsPy:
         lookup() # Get all CRS and TIPLOCs saved to a new .json file
         ```
 
-        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki)
+        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
+
         # Send API request
         api_response = requests.get(
             "https://data.rtt.io/data/locations_ungrouped",

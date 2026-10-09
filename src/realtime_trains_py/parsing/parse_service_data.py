@@ -1,6 +1,7 @@
 from typing import Literal
 
 from realtime_trains_py.internal.details import ServiceLocationData
+from realtime_trains_py.internal.utilities import get_scheduled_time
 
 
 def parse_service_data(
@@ -20,31 +21,37 @@ def parse_service_data(
     # Extract the temporal and location data for the service, which contains the details of the departure and arrival times, platform, and coaches.
     temporal_data = data["temporalData"]
     location_data = data["locationMetadata"]
-
+    print(temporal_data)
     # Extract arrival data if it exists
     if "arrival" in temporal_data:
         # Check if the service is cancelled based on the API response, and set the expected arrival time accordingly.
         # If the service isn't cancelled, check if there is a realtime actual or forecast arrival time, and set the
         # expected arrival time accordingly. If the realtime data matches the scheduled arrival time, set the expected
         # arrival time to "On time".
+
         if "scheduleAdvertised" in temporal_data["arrival"]:
-            scheduled_arrival = temporal_data["arrival"]["scheduleAdvertised"].split(
-                "T"
-            )[1][:5]
+            scheduled_arrival = get_scheduled_time(
+                temporal_data["arrival"], "scheduleAdvertised"
+            )
+
+        else:
+            scheduled_arrival = get_scheduled_time(
+                temporal_data["arrival"], "scheduleInternal"
+            )
 
         if temporal_data["arrival"]["isCancelled"]:
             expected_arrival = "Cancelled"
 
         else:
             if "realtimeActual" in temporal_data["arrival"]:
-                expected_arrival = temporal_data["arrival"]["realtimeActual"].split(
-                    "T"
-                )[1][:5]
+                expected_arrival = get_scheduled_time(
+                    temporal_data["arrival"], "realtimeActual"
+                )
 
             elif "realtimeForecast" in temporal_data["arrival"]:
-                expected_arrival = temporal_data["arrival"]["realtimeForecast"].split(
-                    "T"
-                )[1][:5]
+                expected_arrival = get_scheduled_time(
+                    temporal_data["arrival"], "realtimeForecast"
+                )
 
             expected_arrival = (
                 "On time"
@@ -59,23 +66,28 @@ def parse_service_data(
         # expected departure time accordingly. If the realtime data matches the scheduled departure time, set the expected
         # departure time to "On time".
         if "scheduleAdvertised" in temporal_data["departure"]:
-            scheduled_departure = temporal_data["departure"][
-                "scheduleAdvertised"
-            ].split("T")[1][:5]
+            scheduled_departure = get_scheduled_time(
+                temporal_data["departure"], "scheduleAdvertised"
+            )
+
+        else:
+            scheduled_departure = get_scheduled_time(
+                temporal_data["departure"], "scheduleInternal"
+            )
 
         if temporal_data["departure"]["isCancelled"]:
             expected_departure = "Cancelled"
 
         else:
             if "realtimeActual" in temporal_data["departure"]:
-                expected_departure = temporal_data["departure"]["realtimeActual"].split(
-                    "T"
-                )[1][:5]
+                expected_departure = get_scheduled_time(
+                    temporal_data["departure"], "realtimeActual"
+                )
 
             elif "realtimeForecast" in temporal_data["departure"]:
-                expected_departure = temporal_data["departure"][
-                    "realtimeForecast"
-                ].split("T")[1][:5]
+                expected_departure = get_scheduled_time(
+                    temporal_data["departure"], "realtimeForecast"
+                )
 
             expected_departure = (
                 "On time"

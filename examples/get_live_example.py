@@ -1,13 +1,11 @@
 from realtime_trains_py import RealtimeTrainsPy
 
 # Initialise RealtimeTrainsPy
-rtt = RealtimeTrainsPy(
-    request_token="YOUR_REQUEST_TOKEN" # <----- CHANGE ME
-)
+rtt = RealtimeTrainsPy(request_token="YOUR_REQUEST_TOKEN")  # <----- CHANGE ME
 
 #### EXAMPLE 1 ####
 
-rtt.get_live("ELYY") # Get live departure board for Ely
+rtt.get_live("ELYY")  # Get live departure board for Ely
 
 ### EXAMPLE OUTPUT ###
 # Ely Live:
@@ -20,7 +18,7 @@ rtt.get_live("ELYY") # Get live departure board for Ely
 
 #### EXAMPLE 2 ####
 
-rtt.get_live("KNGX") # Get live departure board for London Kings Cross
+rtt.get_live("KNGX")  # Get live departure board for London Kings Cross
 
 ### EXAMPLE OUTPUT ###
 # London Kings Cross Live:
@@ -33,7 +31,9 @@ rtt.get_live("KNGX") # Get live departure board for London Kings Cross
 
 #### EXAMPLE 3 ####
 
-rtt.get_live("LEEDS", "DMI_white") # Get live departure board for Leeds in DMI (White) mode
+rtt.get_live(
+    "LEEDS", "DMI_white", refresh=120
+)  # Get live departure board for Leeds in DMI (White) mode, refreshing every 120 seconds
 
 ### EXAMPLE OUTPUT ###
 # Leeds Live:

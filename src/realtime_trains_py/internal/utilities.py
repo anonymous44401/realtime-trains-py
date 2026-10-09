@@ -117,6 +117,10 @@ def create_parameters(
     return parameters
 
 
+def get_scheduled_time(data, time) -> str:
+    return data.pop(time).split("T")[1][:5]
+
+
 def validate_date(date: str) -> str:
     # Validate the date provided by the user. The date must be in the format YYYY-MM-DD, and must be a valid date.
     # If the date is not valid, raise an error.

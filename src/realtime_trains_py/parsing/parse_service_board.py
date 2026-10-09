@@ -2,9 +2,25 @@ from realtime_trains_py.internal.details import ServiceData
 from realtime_trains_py.internal.utilities import check_cancel, fmt
 
 
-def arrange_output(service: ServiceData) -> str:
+def arrange_output(service: ServiceData, mode: str = "LCD") -> str:
+    format = fmt
+
+    if mode == "DMI.W":
+        format["grey"] = "\033[1;39m"
+        format["red"] = "\033[1;39m"
+        format["yellow"] = "\033[1;39m"
+        format["green"] = "\033[1;39m"
+        format["blue"] = "\033[1;39m"
+
+    elif mode == "DMI.Y":
+        format["white"] = "\033[1;33m"
+        format["grey"] = "\033[1;33m"
+        format["red"] = "\033[1;33m"
+        format["green"] = "\033[1;33m"
+        format["blue"] = "\033[1;33m"
+
     # Set the initial line
-    lines = f"{fmt['blue']}{service.service_uid}:{fmt['white']} {service.start_time} {service.origin} to {service.destination}\n  │\n"
+    lines = f"{format['blue']}{service.service_uid}:{format['white']} {service.start_time} {service.origin} to {service.destination}\n  │\n"
 
     # Iterate over each calling point
     for calling_point in service.calling_points:
@@ -28,7 +44,7 @@ def arrange_output(service: ServiceData) -> str:
             )
 
     # Add the operator to the lines
-    lines += f"{fmt['white']}Operated by {fmt['blue']}{service.operator} {fmt['white']}"
+    lines += f"{format['white']}Operated by {format['blue']}{service.operator} {format['white']}"
 
     # If there is a number of coaches, add this information to the lines
     if service.coaches != 0:

@@ -3,25 +3,44 @@ from tabulate import tabulate
 
 from realtime_trains_py.internal.details import ServiceLocationData, ServiceData
 from realtime_trains_py.parsing.parse_service_data import parse_service_data
+from realtime_trains_py.internal.utilities import get_scheduled_time
 
 
 def create_service_record(
     service_data, service_uid: str, complexity: str
 ) -> ServiceData:
     # Extract the relevant data from the API response and create a ServiceData data class to return
-    operator = service_data["scheduleMetadata"]["operator"].pop("name")
+    operator = (
+        service_data["scheduleMetadata"]["operator"].pop("name")
+        if "name" in service_data["scheduleMetadata"]["operator"]
+        else "Unknown"
+    )
+
     origin = service_data["origin"][0]["location"].pop("description")
-    start_time = (
-        service_data["origin"][0]["temporalData"]
-        .pop("scheduleAdvertised")
-        .split("T")[1][:5]
-    )
+    if "scheduleAdvertised" in service_data["origin"][0]["temporalData"]:
+        start_time = get_scheduled_time(
+            service_data["origin"][0]["temporalData"], "scheduleAdvertised"
+        )
+
+    else:
+        start_time = get_scheduled_time(
+            service_data["origin"][0]["temporalData"], "scheduleInternal"
+        )
+
     destination = service_data["destination"][0]["location"].pop("description")
-    end_time = (
-        service_data["destination"][0]["temporalData"]
-        .pop("scheduleAdvertised")
-        .split("T")[1][:5]
-    )
+
+    if "scheduleAdvertised" in service_data["destination"][0]["temporalData"]:
+        end_time = get_scheduled_time(
+            service_data["destination"][0]["temporalData"],
+            "scheduleAdvertised",
+        )
+
+    else:
+        end_time = get_scheduled_time(
+            service_data["destination"][0]["temporalData"],
+            "scheduleInternal",
+        )
+
     coaches = 0
 
     calling_points: list[ServiceLocationData] = []
@@ -29,27 +48,28 @@ def create_service_record(
 
     # Iterate through the locations in the service data and create ServiceLocationData data classes for each location.
     # If the complexity is simple, create a 2D array to print as a table later.
-    for locations in service_data["locations"]:
-        calling_point = parse_service_data(locations, "calling_point")
+    if "locations" in service_data:
+        for locations in service_data["locations"]:
+            calling_point = parse_service_data(locations, "calling_point")
 
-        if calling_point.coaches != 0:
-            coaches = calling_point.coaches
+            if calling_point.coaches != 0:
+                coaches = calling_point.coaches
 
-        if complexity == "s":
-            calling_point_data.append(
-                [
-                    calling_point.stop_name,
-                    calling_point.scheduled_arrival,
-                    calling_point.expected_arrival,
-                    calling_point.platform,
-                    calling_point.line,
-                    calling_point.scheduled_departure,
-                    calling_point.expected_departure,
-                ]
-            )
+            if complexity == "s":
+                calling_point_data.append(
+                    [
+                        calling_point.stop_name,
+                        calling_point.scheduled_arrival,
+                        calling_point.expected_arrival,
+                        calling_point.platform,
+                        calling_point.line,
+                        calling_point.scheduled_departure,
+                        calling_point.expected_departure,
+                    ]
+                )
 
-        else:
-            calling_points.append(calling_point)
+            else:
+                calling_points.append(calling_point)
 
     if complexity == "s":
         if coaches != 0:
