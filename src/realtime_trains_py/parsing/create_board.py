@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime as dt
 from tabulate import tabulate
 
 from realtime_trains_py.internal.details import DefaultBoard, ServiceLocationData
@@ -22,12 +22,12 @@ def create_board(service_data, rows, complexity: str) -> DefaultBoard:
             departure_board_data.append(
                 [
                     service_info.scheduled_arrival,
-                    service_info.scheduled_departure,
+                    service_info.expected_arrival,
                     service_info.origin,
                     service_info.terminus,
                     service_info.platform,
                     service_info.coaches,
-                    service_info.expected_arrival,
+                    service_info.scheduled_departure,
                     service_info.expected_departure,
                     service_info.service_uid,
                 ]
@@ -38,21 +38,21 @@ def create_board(service_data, rows, complexity: str) -> DefaultBoard:
 
     # Print the departure info and tabulate table with the headers defined
     print(
-        f"Departure board for {requested_location}. Generated at {datetime.now().strftime('%H:%M:%S on %d/%m/%y')}."
+        f"Departure board for {requested_location}. Generated at {dt.now().strftime('%H:%M:%S on %d/%m/%y')}."
     )
     print(
         tabulate(
             departure_board_data,
             tablefmt="rounded_grid",
             headers=[
-                "Scheduled \nArrival",
-                "Scheduled \nDeparture",
+                "Scheduled \n\nArrival",
+                "Expected \n\nArrival",
                 "Origin",
                 "Destination",
                 "Platform",
                 "Coaches",
-                "Actual \nArrival",
-                "Actual \nDeparture",
+                "Scheduled \n\nDeparture",
+                "Expected \n\nDeparture",
                 "Service UID",
             ],
         )

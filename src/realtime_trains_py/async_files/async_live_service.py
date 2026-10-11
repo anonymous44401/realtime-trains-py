@@ -4,7 +4,7 @@ import sys
 import time
 import requests
 
-from datetime import datetime
+from datetime import datetime as dt
 
 # Import necessary items from other files
 from realtime_trains_py.internal.errors import AuthenticationError
@@ -60,7 +60,7 @@ class AsyncLiveService:
                 response = self.__session.get(
                     "https://data.rtt.io/rtt/service",
                     params={
-                        "uniqueIdentity": f"gb-nr:{service_uid}:{datetime.now().strftime('%Y-%m-%d')}"
+                        "uniqueIdentity": f"gb-nr:{service_uid}:{dt.now().strftime('%Y-%m-%d')}"
                     },
                     headers=self.__headers,
                 )
@@ -76,14 +76,12 @@ class AsyncLiveService:
                         f"{fmt['clear']}{arrange_output(service=service_record, mode=mode)}"
                     )
 
-                    # Add refresh time to next update
-                    next_update += refresh
-
                 elif response.status_code == 401:
                     # Check the request token and update the headers with the new token
                     await self.__update_api_request_token()
 
                     next_update = int(time.time())
+                    continue
 
                 # If no data is found, display a "Check timetable for services" message
                 else:
@@ -92,10 +90,8 @@ class AsyncLiveService:
                         f"{fmt['clear']}{fmt['blue']}{service_uid}:\n {fmt['grey']}Check timetable for services\n"
                     )
 
-                    next_update += refresh
+                next_update += refresh
 
             # Display the current time at the bottom of the board and update it every second
-            sys.stdout.write(
-                f"{datetime.now().strftime('         %H:%M:%S')}{fmt['c_line']}"
-            )
+            sys.stdout.write(f"{dt.now().strftime('         %H:%M:%S')}{fmt['c_line']}")
             await asyncio.sleep(1)

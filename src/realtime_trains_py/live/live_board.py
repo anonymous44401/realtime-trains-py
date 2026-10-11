@@ -3,7 +3,7 @@ import sys
 import time
 import requests
 
-from datetime import datetime
+from datetime import datetime as dt
 
 # Import necessary items from other files
 from realtime_trains_py.internal.details import ServiceLocationData
@@ -72,10 +72,19 @@ class LiveBoard:
                     )
 
                     # Get the service details for the first 3 services in the departure data and append them to a list
-                    for service in departure_data["services"][:3]:
-                        departure_board.append(
-                            parse_service_data(service, "station_board")
+                    if "services" in departure_data:
+                        for service in departure_data["services"][:3]:
+                            departure_board.append(
+                                parse_service_data(service, "station_board")
+                            )
+
+                    else:
+                        sys.stdout.write(
+                            f"{fmt['clear']}{fmt['blue']}{requested_location} Live:\n {fmt['grey']}Check timetable for services\n"
                         )
+
+                        next_update = int(time.time()) + refresh
+                        continue
 
                     # Show the first line and update colours based on the given mode. If the mode is DMI.Y, set the text colour to yellow. If the
                     # mode is DMI.W, set the text colour to white. If the mode is LCD, set the text colour to default.
@@ -103,7 +112,7 @@ class LiveBoard:
                                 all_service_data=self.__session.get(
                                     "https://data.rtt.io/rtt/service",
                                     params={
-                                        "uniqueIdentity": f"gb-nr:{service.service_uid}:{datetime.now().strftime('%Y-%m-%d')}",
+                                        "uniqueIdentity": f"gb-nr:{service.service_uid}:{dt.now().strftime('%Y-%m-%d')}",
                                         "timeTolerance": "false",
                                         "detailed": "false",
                                     },
@@ -137,13 +146,12 @@ class LiveBoard:
                         f"{fmt['clear']}{line_one}{line_two}{line_three}{line_four}"
                     )
 
-                    next_update = int(time.time()) + refresh
-
                 elif response.status_code == 401:
                     # Check the request token and update the headers with the new token
                     self.__update_api_request_token()
 
                     next_update = int(time.time())
+                    continue
 
                 # If no data is found, display a "Check timetable for services" message
                 else:
@@ -152,10 +160,8 @@ class LiveBoard:
                         f"{fmt['clear']}{fmt['blue']}{tiploc} Live:\n {fmt['grey']}Check timetable for services\n"
                     )
 
-                    next_update = int(time.time()) + refresh
+                next_update = int(time.time()) + refresh
 
             # Display the current time at the bottom of the board and update it every second
-            sys.stdout.write(
-                f"{datetime.now().strftime('         %H:%M:%S')}{fmt['c_line']}"
-            )
+            sys.stdout.write(f"{dt.now().strftime('         %H:%M:%S')}{fmt['c_line']}")
             time.sleep(1)

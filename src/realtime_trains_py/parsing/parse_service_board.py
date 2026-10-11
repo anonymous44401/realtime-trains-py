@@ -6,6 +6,7 @@ def arrange_output(service: ServiceData, mode: str = "LCD") -> str:
     format = fmt
 
     if mode == "DMI.W":
+        format["white"] = "\033[1;39m"
         format["grey"] = "\033[1;39m"
         format["red"] = "\033[1;39m"
         format["yellow"] = "\033[1;39m"
@@ -16,6 +17,7 @@ def arrange_output(service: ServiceData, mode: str = "LCD") -> str:
         format["white"] = "\033[1;33m"
         format["grey"] = "\033[1;33m"
         format["red"] = "\033[1;33m"
+        format["yellow"] = "\033[1;33m"
         format["green"] = "\033[1;33m"
         format["blue"] = "\033[1;33m"
 
@@ -25,7 +27,7 @@ def arrange_output(service: ServiceData, mode: str = "LCD") -> str:
     # Iterate over each calling point
     for calling_point in service.calling_points:
 
-        # If the stop name isn't the desination, add the calling point line to the line
+        # If the stop name isn't the destination, add the calling point line to the line
         if service.destination != calling_point.stop_name:
             lines += calling_point_line(
                 calling_point.expected_departure,
@@ -53,33 +55,33 @@ def arrange_output(service: ServiceData, mode: str = "LCD") -> str:
     return lines + "\n\n"
 
 
-def final_calling_point(exp_dep: str, sch_dep: str, stop: str, platform: str):
+def final_calling_point(exp_arr: str, sch_arr: str, stop: str, platform: str):
     # Check if the calling point is cancelled
-    exp_dep = check_cancel(exp_dep, True)
-
-    # If the calling point isn't equal, strike through the scheduled arrival time and display the expected arrival time.
-    # Otherwise, display the scheduled arrival time in green.
-    if "On time" in exp_dep:
-        #   ╰─ 10:30 Stevenage P3
-        return f"  {fmt['white']}╰─ {fmt['green']}{sch_dep}{fmt['white']} {stop} {f"P{platform}" if platform != "-" else ""} \n\n"
-
-    else:
-        #   ╰─ 10:30 Cancelled Stevenage P3
-        return f"  {fmt['white']}╰─ {fmt['grey']}{fmt['s_strike']}{sch_dep}{fmt['e_strike']} {exp_dep}{fmt['white']} {stop} {f"P{platform}" if platform != "-" else ""} \n\n"
-
-
-def calling_point_line(exp_arr: str, sch_arr: str, stop: str, platform: str):
-    # Check if the calling point is cancelled
-    exp_arr = check_cancel(exp_arr, True)
+    exp_arr = check_cancel(exp_arr, sch_arr, True)
 
     # If the calling point isn't equal, strike through the scheduled arrival time and display the expected arrival time.
     # Otherwise, display the scheduled arrival time in green.
     if "On time" in exp_arr:
+        #   ╰─ 10:30 Stevenage P3
+        return f"  {fmt['white']}╰─ {fmt['green']}{sch_arr}{fmt['white']} {exp_arr} {stop} {f"P{platform}" if platform != "-" else ""} \n\n"
+
+    else:
+        #   ╰─ 10:30 Cancelled Stevenage P3
+        return f"  {fmt['white']}╰─ {fmt['grey']}{fmt['s_strike']}{sch_arr}{fmt['e_strike']} {exp_arr}{fmt['white']} {stop} {f"P{platform}" if platform != "-" else ""} \n\n"
+
+
+def calling_point_line(exp_dep: str, sch_dep: str, stop: str, platform: str):
+    # Check if the calling point is cancelled
+    exp_dep = check_cancel(exp_dep, sch_dep, True)
+
+    # If the calling point isn't equal, strike through the scheduled departure time and display the expected departure time.
+    # Otherwise, display the scheduled departure time in green.
+    if "On time" in exp_dep:
         #   ├─ 10:30 Stevenage P3
         #   │
-        return f"  {fmt['white']}├─ {fmt['green']}{sch_arr}{fmt['white']} {stop} {f"P{platform}" if platform != "-" else ""} \n  │\n"
+        return f"  {fmt['white']}├─ {fmt['green']}{sch_dep}{fmt['white']} {exp_dep} {stop} {f"P{platform}" if platform != "-" else ""} \n  │\n"
 
     else:
         #   ├─ 10:30 Cancelled Stevenage P3
         #   │
-        return f"  {fmt['white']}├─ {fmt['grey']}{fmt['s_strike']}{sch_arr}{fmt['e_strike']} {exp_arr}{fmt['white']} {stop} {f"P{platform}" if platform != "-" else ""} \n  │\n"
+        return f"  {fmt['white']}├─ {fmt['grey']}{fmt['s_strike']}{sch_dep}{fmt['e_strike']} {exp_dep}{fmt['white']} {stop} {f"P{platform}" if platform != "-" else ""} \n  │\n"

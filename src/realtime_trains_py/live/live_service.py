@@ -3,7 +3,7 @@ import sys
 import time
 import requests
 
-from datetime import datetime
+from datetime import datetime as dt
 
 # Import necessary items from other files
 from realtime_trains_py.internal.errors import AuthenticationError
@@ -59,30 +59,23 @@ class LiveService:
                 response = self.__session.get(
                     "https://data.rtt.io/rtt/service",
                     params={
-                        "uniqueIdentity": f"gb-nr:{service_uid}:{datetime.now().strftime('%Y-%m-%d')}"
+                        "uniqueIdentity": f"gb-nr:{service_uid}:{dt.now().strftime('%Y-%m-%d')}"
                     },
                     headers=self.__headers,
                 )
 
                 if response.status_code == 200:
-                    # Create the service record
-                    service_record = create_service_record(
-                        response.json()["service"], service_uid, "s.n"
-                    )
-
                     # Clear the board and arrange the output
                     sys.stdout.write(
-                        f"{fmt['clear']}{arrange_output(service=service_record, mode=mode)}"
+                        f"{fmt['clear']}{arrange_output(service=create_service_record(response.json()["service"], service_uid, "s.n"), mode=mode)}"
                     )
-
-                    # Add refresh to next update
-                    next_update += refresh
 
                 elif response.status_code == 401:
                     # Check the request token and update the headers with the new token
                     self.__update_api_request_token()
 
                     next_update = int(time.time())
+                    continue
 
                 # If no data is found, display a "Check timetable for services" message
                 else:
@@ -91,10 +84,8 @@ class LiveService:
                         f"{fmt['clear']}{fmt['blue']}{service_uid}:\n {fmt['grey']}Check timetable for services\n"
                     )
 
-                    next_update += refresh
+                next_update += refresh
 
             # Display the current time at the bottom of the board and update it every second
-            sys.stdout.write(
-                f"{datetime.now().strftime('         %H:%M:%S')}{fmt['c_line']}"
-            )
+            sys.stdout.write(f"{dt.now().strftime('         %H:%M:%S')}{fmt['c_line']}")
             time.sleep(1)

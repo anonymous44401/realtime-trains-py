@@ -21,7 +21,6 @@ def parse_service_data(
     # Extract the temporal and location data for the service, which contains the details of the departure and arrival times, platform, and coaches.
     temporal_data = data["temporalData"]
     location_data = data["locationMetadata"]
-    print(temporal_data)
     # Extract arrival data if it exists
     if "arrival" in temporal_data:
         # Check if the service is cancelled based on the API response, and set the expected arrival time accordingly.

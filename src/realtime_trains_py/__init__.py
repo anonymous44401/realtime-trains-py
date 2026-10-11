@@ -2,7 +2,7 @@
 import os
 import requests
 
-from datetime import datetime
+from datetime import datetime as dt
 from typing import Literal
 
 # Import necessary items from other files
@@ -28,18 +28,26 @@ from realtime_trains_py.parsing.create_service import create_service_record
 from realtime_trains_py.parsing.lookup import location_lookup, code_lookup
 
 # Define the complexity and mode types, and their corresponding mappings to the API parameters
-Complexity = Literal["simple", "simple_normal", "complex"]
+Complexity = Literal["simple", "simple_normal", "complex", "complex_custom"]
 Mode = Literal["DMI_yellow", "DMI_white", "LCD"]
-_COMPLEXITY_MAP = {"simple": "s", "simple_normal": "s.n", "complex": "c"}
+_COMPLEXITY_MAP = {
+    "simple": "s",
+    "simple_normal": "s.n",
+    "complex": "c",
+    "complex_custom": "c.c",
+}
 _MODE_MAP = {"DMI_yellow": "DMI.Y", "DMI_white": "DMI.W", "LCD": "LCD"}
 
 
 class RealtimeTrainsPy:
-    def __init__(self, request_token: str, complexity: Complexity = "simple") -> None:
+    def __init__(
+        self, request_token: str, complexity: Complexity = "simple", folder: str = ""
+    ) -> None:
         """
         :param str request_token: (Required) A string representing your request token for authentication.
         :param complexity: (Optional) A string representing your chosen complexity level.
-        Choose from: `complex`, `simple` or `simple_normal`. If not provided, defaults to `simple`.
+        Choose from: `complex`, `complex_custom`, `simple` or `simple_normal`. If not provided, defaults to `simple`.
+        :param str folder: (Optional) **Only available for complex (custom) mode** A string representing the folder you want the file saved in.
 
         ---
         ## Examples
@@ -53,6 +61,7 @@ class RealtimeTrainsPy:
         """
 
         self.__api_complexity = _COMPLEXITY_MAP[complexity]
+        self.__folder = folder
 
         if self.__api_complexity == "c":
             # Check if realtime_trains_py_data folder exists and create it if not
@@ -78,6 +87,8 @@ class RealtimeTrainsPy:
         rows: int | None = None,
         time: str | None = None,
         raw: bool = False,
+        detailed: bool = False,
+        folder: str = "",
     ) -> DefaultBoard:
         """
         ## Get Departures
@@ -90,6 +101,8 @@ class RealtimeTrainsPy:
         :param int rows: (Optional) An integer representing the maximum number of rows to return. (Only available for simple complexity.)
         :param str time: (Optional) A string representing the time in the formats HHMM or HH:MM.
         :param bool raw: (Optional) A boolean representing whether you want raw data.
+        :param bool detailed: (Optional) A boolean representing whether you want detailed data. This functionality may be limited to your authorisation token.
+        :param str folder: (Optional) **Only available for complex (custom) mode** A string representing the folder you want the file saved in.
 
         ---
         ## Examples
@@ -113,7 +126,9 @@ class RealtimeTrainsPy:
         api_response = requests.get(
             "https://data.rtt.io/rtt/location",
             headers=self.__headers,
-            params=create_parameters(tiploc, filter_from, filter_to, time, date),
+            params=create_parameters(
+                tiploc, filter_from, filter_to, time, date, detailed
+            ),
         )
 
         if api_response.status_code == 200:
@@ -123,12 +138,27 @@ class RealtimeTrainsPy:
                 return service_data
 
             elif self.__api_complexity == "c":
-                # If complexity is c or raw is True, save the JSON data to a new .json file in the realtime_trains_py_data folder using the create_file
+                # If complexity is c, save the JSON data to a new .json file in the realtime_trains_py_data folder using the create_file
                 # function and return an empty DefaultBoard data class since the data is saved to a file and not returned as a data class object
                 create_file(
-                    f"{tiploc.upper()}_on_{datetime.now().strftime('%Y-%m-%d') if date is None else date}_board_data",
+                    f"realtime_trains_py_data/{tiploc.upper()}_on_{dt.now().strftime('%Y-%m-%d') if date is None else date}_board_data",
                     service_data,
                 )
+
+                return DefaultBoard([], "")
+
+            elif self.__api_complexity == "c.c":
+                # If complexity is c.c, save the JSON data to a new .json file using the create_file
+                # function and return an empty DefaultBoard data class since the data is saved to a file and not returned as a data class object
+                file = f"{tiploc.upper()}_on_{dt.now().strftime('%Y-%m-%d') if date is None else date}_board_data"
+
+                if folder != "":
+                    file = f"{folder}/{file}"
+
+                elif self.__folder != "":
+                    file = f"{self.__folder}/{file}"
+
+                create_file(file, service_data)
 
                 return DefaultBoard([], "")
 
@@ -145,8 +175,10 @@ class RealtimeTrainsPy:
     def get_service(
         self,
         service_uid: str,
-        date: str = datetime.now().strftime("%Y-%m-%d"),
+        date: str = dt.now().strftime("%Y-%m-%d"),
         raw: bool = False,
+        detailed: bool = False,
+        folder: str = "",
     ) -> ServiceData:
         """
         ## Get Service
@@ -155,6 +187,8 @@ class RealtimeTrainsPy:
         :param str service_uid: (Required) A string representing the Service Unique Identity (UID) code.
         :param str date: (Optional) A string representing the date in the format YYYY-MM-DD.
         :param bool raw: (Optional) A boolean representing whether you want raw data.
+        :param bool detailed: (Optional) A boolean representing whether you want detailed data. This functionality may be limited to your authorisation token.
+        :param str folder: (Optional) **Only available for complex (custom) mode** A string representing the folder you want the file saved in.
 
         ---
         ## Examples
@@ -174,7 +208,10 @@ class RealtimeTrainsPy:
         # Get the api response using the auth details provided
         api_response = requests.get(
             "https://data.rtt.io/rtt/service",
-            params={"uniqueIdentity": f"gb-nr:{service_uid}:{validate_date(date)}"},
+            params={
+                "uniqueIdentity": f"gb-nr:{service_uid}:{validate_date(date)}",
+                "detailed": f"{detailed}",
+            },
             headers=self.__headers,
         )
 
@@ -186,7 +223,25 @@ class RealtimeTrainsPy:
 
             elif self.__api_complexity == "c":
                 # Create a new file
-                create_file(f"{service_uid}_on_{date}_service_data", service_data)
+                create_file(
+                    f"realtime_trains_py_data/{service_uid}_on_{date}_service_data",
+                    service_data,
+                )
+
+                # Return an empty ServiceData data class since the data is saved to a file and not returned as an object
+                return ServiceData("", "", "", "", [], "", "", 0)
+
+            elif self.__api_complexity == "c.c":
+                # Create a new file
+                file = f"{service_uid}_on_{date}_service_data"
+
+                if folder != "":
+                    file = f"{folder}/{file}"
+
+                elif self.__folder != "":
+                    file = f"{self.__folder}/{file}"
+
+                create_file(file, service_data)
 
                 # Return an empty ServiceData data class since the data is saved to a file and not returned as an object
                 return ServiceData("", "", "", "", [], "", "", 0)
@@ -327,7 +382,11 @@ class RealtimeTrainsPy:
             service_uid=service_uid, mode=_MODE_MAP[mode], refresh=refresh
         )
 
-    def lookup(self, location: str | None = None, code: str | None = None) -> None:
+    def lookup(
+        self,
+        location: str | None = None,
+        code: str | None = None,
+    ) -> None:
         """
         ## Lookup
 

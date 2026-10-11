@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime as dt
 from tabulate import tabulate
 
 from realtime_trains_py.internal.details import ServiceLocationData, ServiceData
@@ -74,12 +74,12 @@ def create_service_record(
     if complexity == "s":
         if coaches != 0:
             print(
-                f"{service_uid} \n  {start_time} {origin} to {destination} \n  A {operator} service formed of {coaches} coaches.\n\n  Generated at {datetime.now().strftime('%H:%M:%S on %d/%m/%y.')}"
+                f"{service_uid} \n  {start_time} {origin} to {destination} \n  A {operator} service formed of {coaches} coaches.\n\n  Generated at {dt.now().strftime('%H:%M:%S on %d/%m/%y.')}"
             )
 
         else:
             print(
-                f"{service_uid} \n  {start_time} {origin} to {destination} \n  Operated by {operator} \n\n  Generated at {datetime.now().strftime('%H:%M:%S on %d/%m/%y.')}"
+                f"{service_uid} \n  {start_time} {origin} to {destination} \n  Operated by {operator} \n\n  Generated at {dt.now().strftime('%H:%M:%S on %d/%m/%y.')}"
             )
 
         # Print the table for the service and return an empty ServiceData object since the data is printed and not returned as an object
@@ -89,12 +89,12 @@ def create_service_record(
                 tablefmt="rounded_grid",
                 headers=[
                     "Stop Name",
-                    "Scheduled Arrival",
-                    "Expected Arrival",
+                    "Scheduled \n\nArrival",
+                    "Expected \n\nArrival",
                     "Platform",
                     "Line",
-                    "Scheduled Departure",
-                    "Expected Departure",
+                    "Scheduled \n\nDeparture",
+                    "Expected \n\nDeparture",
                 ],
             )
         )

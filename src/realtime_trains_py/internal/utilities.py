@@ -1,4 +1,5 @@
 # Import external libraries
+import datetime
 import json
 import re
 import requests
@@ -30,19 +31,46 @@ fmt: dict[str, str] = {
 }
 
 
-def check_cancel(actual_departure: str, remove_exp: bool = False) -> str:
+def check_cancel(expected: str, scheduled: str = "", remove_exp: bool = False) -> str:
     # Check if the service is cancelled or delayed. Change text colour accordingly. If cancelled, set the text to red.
     # If on time, set the text to green. Otherwise, set the text to yellow. At the end of the line, reset the text colour to default.
-    if actual_departure == "Cancelled":
-        return f"{fmt['red']}{actual_departure}{fmt['white']}"
 
-    elif actual_departure == "On time":
-        return f"{fmt['green']}{actual_departure}{fmt['white']}"
+    if expected == "Cancelled":
+        return f"{fmt['red']}{expected}{fmt['white']}"
 
-    elif remove_exp:
-        return f"{fmt['yellow']}{actual_departure.split(" ")[-1]}{fmt['white']}"
+    elif expected == "On time":
+        return f"{fmt['green']}{expected}{fmt['white']}"
 
-    return f"{fmt['yellow']}{actual_departure}{fmt['white']}"
+    if "Exp" in expected:
+        if check_delay(scheduled.split(" ")[-1], expected.split(" ")[-1]) >= 300:
+
+            if remove_exp:
+                return f"{fmt['red']}{expected.split(" ")[-1]}{fmt['white']}"
+
+            else:
+                return f"{fmt['red']}{expected}{fmt['white']}"
+
+        elif check_delay(scheduled.split(" ")[-1], expected.split(" ")[-1]) <= 0:
+
+            if remove_exp:
+                return f"{fmt['green']}{expected.split(" ")[-1]}{fmt['white']}"
+
+            else:
+                return f"{fmt['green']}{expected}{fmt['white']}"
+
+        elif remove_exp:
+            return f"{fmt['yellow']}{expected.split(" ")[-1]}{fmt['white']}"
+
+    return f"{fmt['yellow']}{expected}{fmt['white']}"
+
+
+def check_delay(schedule: str, expected: str):
+    return int(
+        (
+            datetime.datetime.strptime(expected, "%H:%M")
+            - datetime.datetime.strptime(schedule, "%H:%M")
+        ).total_seconds()
+    )
 
 
 def check_token(request_token: str) -> str:
@@ -64,11 +92,11 @@ def check_token(request_token: str) -> str:
 
 def create_file(name: str, contents) -> None:
     # Create file name by adding directory and type
-    file_name: str = f"realtime_trains_py_data/{name}.json"
+    file_name: str = f"{name}.json"
 
     # Check if file exists
     if not path.isfile(file_name):
-        with open(file_name, "x", encoding="utf-8") as file:
+        with open(file_name, mode="x", encoding="utf-8") as file:
             json.dump(contents, file, ensure_ascii=False, indent=4)
             print(f"Data saved to file: \n  {file_name}.")
 
@@ -83,6 +111,7 @@ def create_parameters(
     filter_to: str | None = None,
     time: str | None = None,
     date: str | None = None,
+    detailed: bool = False,
 ) -> dict[str, str]:
     # Create the parameters for the API request based on the parameters provided. The tiploc parameter is required,
     # but the filter_from, filter_to, time, and date parameters are optional. If the optional parameters are not provided,
@@ -101,7 +130,7 @@ def create_parameters(
         ),
         "timeFrom": "",
         "timeTolerance": "false",
-        "detailed": "false",
+        "detailed": f"{detailed}",
     }
 
     # Add the timeFrom parameter based on the time and date parameters provided
