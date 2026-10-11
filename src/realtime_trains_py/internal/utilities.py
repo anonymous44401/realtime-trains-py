@@ -41,7 +41,7 @@ def check_cancel(expected: str, scheduled: str = "", remove_exp: bool = False) -
     elif expected == "On time":
         return f"{fmt['green']}{expected}{fmt['white']}"
 
-    if "Exp" in expected:
+    if "Exp" in expected and scheduled != "":
         if check_delay(scheduled.split(" ")[-1], expected.split(" ")[-1]) >= 300:
 
             if remove_exp:
@@ -65,6 +65,7 @@ def check_cancel(expected: str, scheduled: str = "", remove_exp: bool = False) -
 
 
 def check_delay(schedule: str, expected: str):
+    print(schedule, expected)
     return int(
         (
             datetime.datetime.strptime(expected, "%H:%M")
