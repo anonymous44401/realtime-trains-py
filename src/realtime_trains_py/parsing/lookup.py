@@ -21,11 +21,11 @@ def location_lookup(location: str, data: Any) -> dict[str, str]:
         # for code, description in codes:
         for code in codes:
             # print(f"- {code} ({description})")
-            print(f"- {code}")
+            print(f"- {code} ({codes.get(code)})")
 
     else:
         print(
-            f"No CRS codes or TIPLOCs found for '{location.lower()}'. Double check your spelling."
+            f"No CRS codes or TIPLOCs found for location '{location.lower()}'. Double check your spelling."
         )
 
     return codes
@@ -54,6 +54,8 @@ def code_lookup(code: str, data: Any) -> list[str]:
             print(f"- {location}")
 
     else:
-        print(f"No location(s) found for '{code.upper()}'. Double check your spelling.")
+        print(
+            f"No location(s) found for code '{code.upper()}'. Double check your spelling."
+        )
 
     return locations

@@ -57,7 +57,7 @@ class RealtimeTrainsPy:
         rtt = RealtimeTrainsPy(request_token="<a_request_token>", complexity="complex")
         ```
 
-        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
+        [Check out the wiki for more examples and information](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
 
         self.__api_complexity = _COMPLEXITY_MAP[complexity]
@@ -119,7 +119,7 @@ class RealtimeTrainsPy:
         get_departures(tiploc="YORK", date="2024-11-16", time="1800")
         ```
 
-        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
+        [Check out the wiki for more examples and information](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
 
         # Get the API response using the auth details provided
@@ -200,7 +200,7 @@ class RealtimeTrainsPy:
         get_service(service_uid="G26171", raw=True)
         ```
 
-        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
+        [Check out the wiki for more examples and information](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
 
         validate_uid(service_uid)
@@ -279,7 +279,7 @@ class RealtimeTrainsPy:
         get_live(tiploc="PBRO", mode="DMI_yellow") # Live board for Peterborough, with mode set to DMI (Yellow)
         ```
 
-        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
+        [Check out the wiki for more examples and information](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
 
         self.__live_board._get_live(
@@ -309,7 +309,7 @@ class RealtimeTrainsPy:
         get_live(tiploc="PBRO", mode="DMI_yellow") # Live board for Peterborough, with mode set to DMI (Yellow)
         ```
 
-        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
+        [Check out the wiki for more examples and information](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
 
         await self.__async_live_board._get_live(
@@ -342,7 +342,7 @@ class RealtimeTrainsPy:
         watch_service(service_uid="G26171") # Watch G26171
         ```
 
-        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
+        [Check out the wiki for more examples and information](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
 
         self.__live_service.watch_service(
@@ -375,7 +375,7 @@ class RealtimeTrainsPy:
         watch_service(service_uid="G26171") # Watch G26171
         ```
 
-        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
+        [Check out the wiki for more examples and information](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
 
         await self.__async_live_service.watch_service(
@@ -404,10 +404,10 @@ class RealtimeTrainsPy:
 
         lookup(code="SVG")
 
-        lookup() # Get all CRS and TIPLOCs saved to a new .json file
+        lookup() # Get all CRS and TIPLOCs returned
         ```
 
-        [Check out the wiki for more examples and information.](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
+        [Check out the wiki for more examples and information](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
 
         # Send API request
@@ -425,13 +425,13 @@ class RealtimeTrainsPy:
         elif (location is not None and code is None) or (
             code is not None and location is None
         ):
-            raw = False
+            return_raw = False
 
         else:
-            raw = True
+            return_raw = True
 
         if api_response.status_code == 200:
-            if raw == True:
+            if return_raw == True:
                 return api_response.json()
 
             elif location is not None:
