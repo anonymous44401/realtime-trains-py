@@ -1,21 +1,23 @@
 from typing import Literal
 
-from realtime_trains_py.internal.details import ServiceLocationData
+from realtime_trains_py.internal.details import LocationData
 from realtime_trains_py.internal.utilities import get_scheduled_time
 
 
 def parse_service_data(
     data, type: Literal["calling_point", "station_board"]
-) -> ServiceLocationData:
+) -> LocationData:
     # Parse data from the API response and return a ServiceLocationData data class based on the type parameter.
 
     # Set initial values for the service details, which will be updated if the relevant data exists in the API response
-    expected_departure: str = "-"
-    expected_arrival: str = "-"
-    platform: str = "-"
-    scheduled_arrival: str = "-"
-    scheduled_departure: str = "-"
-    line: str = "-"
+    expected_departure: str = ""
+    expected_pass: str = ""
+    expected_arrival: str = ""
+    platform: str = ""
+    scheduled_arrival: str = ""
+    scheduled_pass: str = ""
+    scheduled_departure: str = ""
+    line: str = ""
     coaches = 0
 
     # Extract the temporal and location data for the service, which contains the details of the departure and arrival times, platform, and coaches.
@@ -94,6 +96,30 @@ def parse_service_data(
                 else f"Exp {expected_departure}"
             )
 
+    if "pass" in temporal_data:
+        if "scheduleInternal" in temporal_data["pass"]:
+            scheduled_pass = get_scheduled_time(
+                temporal_data["pass"], "scheduleInternal"
+            )
+
+        if temporal_data["pass"]["isCancelled"]:
+            expected_pass = "Cancelled"
+
+        else:
+            if "realtimeActual" in temporal_data["pass"]:
+                expected_pass = get_scheduled_time(
+                    temporal_data["pass"], "realtimeActual"
+                )
+
+            elif "realtimeForecast" in temporal_data["pass"]:
+                expected_pass = get_scheduled_time(
+                    temporal_data["pass"], "realtimeForecast"
+                )
+
+            expected_pass = (
+                "On time" if expected_pass == scheduled_pass else f"Exp {expected_pass}"
+            )
+
     # Extract platform data if it exists
     if "platform" in location_data:
         # Check if there is forecast or actual platform data in the API response, and set the platform accordingly.
@@ -118,7 +144,7 @@ def parse_service_data(
         if "numberOfVehicles" in data["locationMetadata"]:
             coaches = data["locationMetadata"].pop("numberOfVehicles")
 
-        return ServiceLocationData(
+        return LocationData(
             stop_name=data["location"].pop("description"),
             scheduled_arrival=scheduled_arrival,
             expected_arrival=expected_arrival,
@@ -126,20 +152,24 @@ def parse_service_data(
             line=line,
             scheduled_departure=scheduled_departure,
             expected_departure=expected_departure,
+            scheduled_pass=scheduled_pass,
+            expected_pass=expected_pass,
             coaches=coaches,
             terminus="",
             origin="",
             service_uid="-",
         )
 
-    return ServiceLocationData(
+    return LocationData(
         stop_name="-",
         scheduled_arrival=scheduled_arrival,
+        scheduled_pass=scheduled_pass,
         scheduled_departure=scheduled_departure,
         terminus=data["destination"][0]["location"]["description"],
         origin=data["origin"][0]["location"]["description"],
         platform=platform,
         expected_arrival=expected_arrival,
+        expected_pass=expected_pass,
         expected_departure=expected_departure,
         service_uid=data["scheduleMetadata"].pop("identity"),
         coaches=(

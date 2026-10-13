@@ -1,7 +1,7 @@
 from datetime import datetime as dt
 from tabulate import tabulate
 
-from realtime_trains_py.internal.details import ServiceLocationData, ServiceData
+from realtime_trains_py.internal.details import LocationData, ServiceData
 from realtime_trains_py.parsing.parse_service_data import parse_service_data
 from realtime_trains_py.internal.utilities import get_scheduled_time
 
@@ -43,7 +43,7 @@ def create_service_record(
 
     coaches = 0
 
-    calling_points: list[ServiceLocationData] = []
+    calling_points: list[LocationData] = []
     calling_point_data: list[list[str]] = []
 
     # Iterate through the locations in the service data and create ServiceLocationData data classes for each location.
@@ -63,6 +63,8 @@ def create_service_record(
                         calling_point.expected_arrival,
                         calling_point.platform,
                         calling_point.line,
+                        calling_point.scheduled_pass,
+                        calling_point.expected_pass,
                         calling_point.scheduled_departure,
                         calling_point.expected_departure,
                     ]
@@ -89,12 +91,14 @@ def create_service_record(
                 tablefmt="rounded_grid",
                 headers=[
                     "Stop Name",
-                    "Scheduled \n\nArrival",
-                    "Expected \n\nArrival",
+                    "Scheduled \nArrival",
+                    "Expected \nArrival",
                     "Platform",
                     "Line",
-                    "Scheduled \n\nDeparture",
-                    "Expected \n\nDeparture",
+                    "Scheduled \nPass",
+                    "Expected \nPass",
+                    "Scheduled \nDeparture",
+                    "Expected \nDeparture",
                 ],
             )
         )

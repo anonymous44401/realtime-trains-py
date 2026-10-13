@@ -6,7 +6,7 @@ import requests
 from datetime import datetime as dt
 
 # Import necessary items from other files
-from realtime_trains_py.internal.details import ServiceLocationData
+from realtime_trains_py.internal.details import LocationData
 from realtime_trains_py.internal.errors import AuthenticationError
 from realtime_trains_py.internal.utilities import check_cancel, validate_tiploc, fmt
 from realtime_trains_py.parsing.live_first_service import first_service
@@ -50,7 +50,7 @@ class LiveBoard:
         next_update: int = int(time.time())
 
         while True:
-            departure_board: list[ServiceLocationData] = []
+            departure_board: list[LocationData] = []
             # Update the departure board every refresh time
             if int(time.time()) == next_update:
 
@@ -155,9 +155,18 @@ class LiveBoard:
 
                 # If no data is found, display a "Check timetable for services" message
                 else:
+                    match mode:
+                        case "DMI.Y":
+                            line_one = f"{fmt['yellow']}{tiploc} Live:\n"
+
+                        case "DMI.W":
+                            line_one = f"{fmt['white']}{tiploc} Live:\n"
+
+                        case _:
+                            line_one = f"{fmt['blue']}{tiploc} Live:\n{fmt['white']}"
                     # Clear the screen and output a message to the user to check the timetable for services
                     sys.stdout.write(
-                        f"{fmt['clear']}{fmt['blue']}{tiploc} Live:\n {fmt['grey']}Check timetable for services\n"
+                        f"{fmt['clear']}{line_one} {fmt['grey']}Check timetable for services\n"
                     )
 
                 next_update = int(time.time()) + refresh

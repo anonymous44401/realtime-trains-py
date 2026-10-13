@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 # Service Location Data dataclass
 @dataclass(slots=True, frozen=True)
-class ServiceLocationData:
+class LocationData:
     stop_name: str
     scheduled_arrival: str
     expected_arrival: str
@@ -11,6 +11,8 @@ class ServiceLocationData:
     line: str
     scheduled_departure: str
     expected_departure: str
+    scheduled_pass: str
+    expected_pass: str
     coaches: int
     terminus: str
     origin: str
@@ -24,7 +26,7 @@ class ServiceData:
     operator: str
     origin: str
     destination: str
-    calling_points: list[ServiceLocationData]
+    calling_points: list[LocationData]
     start_time: str
     end_time: str
     coaches: int
@@ -33,5 +35,5 @@ class ServiceData:
 # Default Board dataclass
 @dataclass(slots=True, frozen=True)
 class DefaultBoard:
-    board: list[ServiceLocationData]
+    board: list[LocationData]
     location: str

@@ -162,7 +162,7 @@ class RealtimeTrainsPy:
 
                 return DefaultBoard([], "")
 
-            return create_board(service_data, rows, self.__api_complexity)
+            return create_board(service_data, rows, self.__api_complexity, detailed)
 
         elif api_response.status_code == 404:
             raise NoDataFound()

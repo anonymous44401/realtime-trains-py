@@ -1,12 +1,12 @@
 from typing import Any
 
-from realtime_trains_py.internal.details import ServiceLocationData
+from realtime_trains_py.internal.details import LocationData
 from realtime_trains_py.internal.utilities import check_cancel
 
 
 def first_service(
     all_service_data: Any,
-    service: ServiceLocationData,
+    service: LocationData,
     requested_location: str,
     mode: str,
 ) -> str:
