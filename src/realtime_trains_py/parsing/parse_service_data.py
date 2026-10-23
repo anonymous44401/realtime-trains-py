@@ -132,7 +132,10 @@ def parse_service_data(
         if "forecast" in location_data["platform"]:
             platform = location_data["platform"]["forecast"]
 
-        else:
+        elif "planned" in location_data["platform"]:
+            platform = location_data["platform"]["planned"]
+
+        elif "actual" in location_data["platform"]:
             platform = location_data["platform"]["actual"]
 
     if type == "calling_point":
@@ -141,7 +144,10 @@ def parse_service_data(
             if "forecast" in location_data["line"]:
                 line = location_data["line"]["forecast"]
 
-            else:
+            elif "planned" in location_data["line"]:
+                line = location_data["line"]["planned"]
+
+            elif "actual" in location_data["line"]:
                 line = location_data["line"]["actual"]
 
         # If a number of coaches is given in the location data, get the number of coaches for the calling point. This is
