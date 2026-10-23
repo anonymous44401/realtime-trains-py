@@ -63,11 +63,11 @@ def final_calling_point(exp_arr: str, sch_arr: str, stop: str, platform: str):
     # Otherwise, display the scheduled arrival time in green.
     if "On time" in exp_arr:
         #   ╰─ 10:30 Stevenage P3
-        return f"  {fmt['white']}╰─ {fmt['green']}{sch_arr}{fmt['white']} {exp_arr} {stop} {f"P{platform}" if platform != "-" else ""} \n\n"
+        return f"  {fmt['white']}╰─ {fmt['green']}{sch_arr}{fmt['white']} {exp_arr} {stop} {f"P{platform}" if platform != "" else ""} \n\n"
 
     else:
         #   ╰─ 10:30 Cancelled Stevenage P3
-        return f"  {fmt['white']}╰─ {fmt['grey']}{fmt['s_strike']}{sch_arr}{fmt['e_strike']} {exp_arr}{fmt['white']} {stop} {f"P{platform}" if platform != "-" else ""} \n\n"
+        return f"  {fmt['white']}╰─ {fmt['grey']}{fmt['s_strike']}{sch_arr}{fmt['e_strike']} {exp_arr}{fmt['white']} {stop} {f"P{platform}" if platform != "" else ""} \n\n"
 
 
 def calling_point_line(exp_dep: str, sch_dep: str, stop: str, platform: str):

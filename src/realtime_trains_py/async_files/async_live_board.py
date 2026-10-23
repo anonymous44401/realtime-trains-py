@@ -79,13 +79,13 @@ class AsyncLiveBoard:
                                 parse_service_data(service, "station_board")
                             )
 
-                        else:
-                            sys.stdout.write(
-                                f"{fmt['clear']}{fmt['blue']}{requested_location} Live:\n {fmt['grey']}Check timetable for services\n"
-                            )
+                    else:
+                        sys.stdout.write(
+                            f"{fmt['clear']}{fmt['blue']}{requested_location} Live:\n {fmt['grey']}Check timetable for services\n"
+                        )
 
-                            next_update = int(time.time()) + refresh
-                            continue
+                        next_update = int(time.time()) + refresh
+                        continue
 
                     # Show the first line and update colours based on the given mode. If the mode is DMI.Y, set the text colour to yellow. If the
                     # mode is DMI.W, set the text colour to white. If the mode is LCD, set the text colour to default.

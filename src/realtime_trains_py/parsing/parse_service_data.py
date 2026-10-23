@@ -54,11 +54,14 @@ def parse_service_data(
                     temporal_data["arrival"], "realtimeForecast"
                 )
 
-            expected_arrival = (
-                "On time"
-                if expected_arrival == scheduled_arrival
-                else f"Exp {expected_arrival}"
-            )
+            if expected_arrival == scheduled_arrival:
+                expected_arrival = "On time"
+
+            elif expected_arrival == "":
+                pass
+
+            else:
+                expected_arrival = f"Exp {expected_arrival}"
 
     # Extract departure data if it exists
     if "departure" in temporal_data:
@@ -90,11 +93,14 @@ def parse_service_data(
                     temporal_data["departure"], "realtimeForecast"
                 )
 
-            expected_departure = (
-                "On time"
-                if expected_departure == scheduled_departure
-                else f"Exp {expected_departure}"
-            )
+            if expected_departure == scheduled_departure:
+                expected_departure = "On time"
+
+            elif expected_departure == "":
+                pass
+
+            else:
+                expected_departure = f"Exp {expected_departure}"
 
     if "pass" in temporal_data:
         if "scheduleInternal" in temporal_data["pass"]:

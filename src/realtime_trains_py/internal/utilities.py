@@ -42,7 +42,7 @@ def check_cancel(expected: str, scheduled: str = "", remove_exp: bool = False) -
         return f"{fmt['green']}{expected}{fmt['white']}"
 
     if "Exp" in expected and scheduled != "":
-        if check_delay(scheduled.split(" ")[-1], expected.split(" ")[-1]) >= 300:
+        if check_delay(scheduled.split(" ")[-1], expected.split(" ")[-1]) >= 600:
 
             if remove_exp:
                 return f"{fmt['red']}{expected.split(" ")[-1]}{fmt['white']}"
