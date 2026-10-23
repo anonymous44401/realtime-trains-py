@@ -9,7 +9,7 @@ rtt = RealtimeTrainsPy(
 
 # Query for getting the next 10 departures from Hull around 10:00 UTC on 10th January 2025
 departures_at_hull = rtt.get_departures(
-    tiploc="HULL", date="2025-01-10", time="1000", rows=10
+    tiploc="HULL", date_from="2025-01-10", time_from="1000", rows=10
 )
 
 if departures_at_hull is not None:

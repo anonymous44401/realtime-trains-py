@@ -110,8 +110,10 @@ def create_parameters(
     tiploc: str,
     filter_from: str | None = None,
     filter_to: str | None = None,
-    time: str | None = None,
-    date: str | None = None,
+    time_from: str | None = None,
+    date_from: str | None = None,
+    time_to: str | None = None,
+    date_to: str | None = None,
     detailed: bool = False,
 ) -> dict[str, str]:
     # Create the parameters for the API request based on the parameters provided. The tiploc parameter is required,
@@ -130,19 +132,31 @@ def create_parameters(
             else ""
         ),
         "timeFrom": "",
+        "timeTo": "",
         "timeTolerance": "false",
         "detailed": f"{detailed}",
     }
 
     # Add the timeFrom parameter based on the time and date parameters provided
-    if time is not None and date is None:
-        parameters["timeFrom"] = validate_time(time)
+    if time_from is not None and date_from is None:
+        parameters["timeFrom"] = validate_time(time_from)
 
-    elif time is not None and date is not None:
-        parameters["timeFrom"] = f"{validate_date(date)} {validate_time(time)}"
+    elif time_from is not None and date_from is not None:
+        parameters["timeFrom"] = (
+            f"{validate_date(date_from)} {validate_time(time_from)}"
+        )
 
-    elif time is None and date is not None:
-        parameters["timeFrom"] = validate_date(date)
+    elif time_from is None and date_from is not None:
+        parameters["timeFrom"] = validate_date(date_from)
+
+    if time_to is not None and date_to is None:
+        parameters["timeTo"] = validate_time(time_to)
+
+    elif time_to is not None and date_to is not None:
+        parameters["timeTo"] = f"{validate_date(date_to)} {validate_time(time_to)}"
+
+    elif time_to is None and date_to is not None:
+        parameters["timeTo"] = validate_date(date_to)
 
     return parameters
 

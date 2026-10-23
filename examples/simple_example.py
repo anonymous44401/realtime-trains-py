@@ -32,7 +32,7 @@ rtt.get_departures(tiploc="NRCH", rows=5)
 #### EXAMPLE 2 ####
 
 # Query for getting the next 10 arrivals and departures from Hull around 10:00 UTC on 10th January 2025
-rtt.get_departures(tiploc="HULL", date="2026-05-20", time="1000", rows=10)
+rtt.get_departures(tiploc="HULL", date_from="2026-05-20", time_from="1000", rows=10)
 
 ### EXAMPLE OUTPUT ###
 

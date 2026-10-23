@@ -20,9 +20,9 @@ rtt.get_departures(tiploc="NRCH", raw=True)
 #### EXAMPLE 2 ####
 
 # Query for getting the next 10 departures from Hull around 10:00 UTC on 10th January 2025
-rtt.get_departures(tiploc="HULL", date="2025/01/10", time="1000")
+rtt.get_departures(tiploc="HULL", date_from="2025/01/10", time_from="1000")
 # or:
-rtt.get_departures(tiploc="HULL", date="2025/01/10", time="1000", raw=True)
+rtt.get_departures(tiploc="HULL", date_from="2025/01/10", time_from="1000", raw=True)
 
 # Running this will create a new file called HULL_on_2025-01-10_board.json
 

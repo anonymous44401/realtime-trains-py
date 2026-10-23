@@ -84,8 +84,10 @@ class RealtimeTrainsPy:
         filter_from: str | None = None,
         filter_to: str | None = None,
         date: str | None = None,
+        date_to: str | None = None,
         rows: int | None = None,
         time: str | None = None,
+        time_to: str | None = None,
         raw: bool = False,
         detailed: bool = False,
         folder: str = "",
@@ -97,9 +99,11 @@ class RealtimeTrainsPy:
         :param str tiploc: (Required) A string representing the Timing Point Location Code (TIPLOC) or Computer Reservation Code (CRS) of the station.
         :param str filter_from: (Optional) A string representing the Timing Point Location Code (TIPLOC) or Computer Reservation Code (CRS) of the originating station.
         :param str filter_to: (Optional) A string representing the Timing Point Location Code (TIPLOC) or Computer Reservation Code (CRS) of the destination station.
-        :param str date: (Optional) A string representing the date in the format YYYY-MM-DD.
+        :param str date: (Optional) A string representing the start date in the format YYYY-MM-DD.
+        :param str date_to: (Optional) A string representing the end date in the format YYYY-MM-DD.
         :param int rows: (Optional) An integer representing the maximum number of rows to return. (Only available for simple complexity.)
-        :param str time: (Optional) A string representing the time in the formats HHMM or HH:MM.
+        :param str time: (Optional) A string representing the start time in the formats HHMM or HH:MM.
+        :param str time_to: (Optional) A string representing the end time in the formats HHMM or HH:MM.
         :param bool raw: (Optional) A boolean representing whether you want raw data.
         :param bool detailed: (Optional) A boolean representing whether you want detailed data. This functionality may be limited to your authorisation token.
         :param str folder: (Optional) **Only available for complex (custom) mode** A string representing the folder you want the file saved in.
@@ -127,7 +131,7 @@ class RealtimeTrainsPy:
             "https://data.rtt.io/rtt/location",
             headers=self.__headers,
             params=create_parameters(
-                tiploc, filter_from, filter_to, time, date, detailed
+                tiploc, filter_from, filter_to, time, date, time_to, date_to, detailed
             ),
         )
 
