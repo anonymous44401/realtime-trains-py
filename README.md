@@ -63,9 +63,7 @@ You'll need an account for the [Realtime Trains API](https://api-portal.rtt.io/w
 
 ## Examples
 
-### Some features show below are only available for BETA versions. Do not attempt to use them in stable versions.
-
-#### **NEW!** `VERSION 2027.2.0 [BETA]` Watch Service
+#### **NEW!** Watch Service
 
 ###### The example below will display a live service board for G28171.
 
@@ -73,7 +71,7 @@ You'll need an account for the [Realtime Trains API](https://api-portal.rtt.io/w
 rtt.watch_service(service_uid="G28171")
 ```
 
-#### **NEW!** `VERSION 2027.2.0 [BETA]` Watch Service (Async)
+#### **NEW!** Watch Service (Async)
 
 ###### The example below will display a live service board for G28171.
 
@@ -82,7 +80,7 @@ import asyncio
 await rtt.watch_service(service_uid="G28171")
 ```
 
-#### **NEW!** `VERSION 2027.2.0 [BETA]` Lookup
+#### **NEW!** Lookup
 
 ###### The example below will display all CRS codes and TIPLOCs for London Liverpool Street.
 
@@ -96,7 +94,7 @@ rtt.lookup(location="London Liverpool Street")
 rtt.lookup(code="LST")
 ```
 
-#### **NEW!** `VERSION 2027.2.0 [BETA]` Get Live (Async)
+#### **NEW!** Get Live (Async)
 
 ###### The example below will display a live service board for G28171.
 
