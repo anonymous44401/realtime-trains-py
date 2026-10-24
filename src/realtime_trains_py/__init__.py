@@ -73,6 +73,8 @@ class RealtimeTrainsPy:
             "Authorization": f"Bearer {check_token(request_token=request_token)}",
         }
 
+        self.__request_token = request_token
+
         self.__live_board = LiveBoard(self.__headers, request_token)
         self.__async_live_board = AsyncLiveBoard(self.__headers, request_token)
         self.__live_service = LiveService(self.__headers, request_token)
@@ -134,6 +136,27 @@ class RealtimeTrainsPy:
                 tiploc, filter_from, filter_to, time, date, time_to, date_to, detailed
             ),
         )
+
+        if api_response.status_code == 401:
+            self.__headers = {
+                "Accept": "application/json",
+                "Authorization": f"Bearer {check_token(request_token=self.__request_token)}",
+            }
+
+            api_response = requests.get(
+                "https://data.rtt.io/rtt/location",
+                headers=self.__headers,
+                params=create_parameters(
+                    tiploc,
+                    filter_from,
+                    filter_to,
+                    time,
+                    date,
+                    time_to,
+                    date_to,
+                    detailed,
+                ),
+            )
 
         if api_response.status_code == 200:
             service_data = api_response.json()
@@ -218,6 +241,21 @@ class RealtimeTrainsPy:
             },
             headers=self.__headers,
         )
+
+        if api_response.status_code == 401:
+            self.__headers = {
+                "Accept": "application/json",
+                "Authorization": f"Bearer {check_token(request_token=self.__request_token)}",
+            }
+
+            api_response = requests.get(
+                "https://data.rtt.io/rtt/service",
+                params={
+                    "uniqueIdentity": f"gb-nr:{service_uid}:{validate_date(date)}",
+                    "detailed": f"{detailed}",
+                },
+                headers=self.__headers,
+            )
 
         if api_response.status_code == 200:
             service_data = api_response.json()["service"]
@@ -419,6 +457,17 @@ class RealtimeTrainsPy:
             "https://data.rtt.io/data/locations_ungrouped",
             headers=self.__headers,
         )
+
+        if api_response.status_code == 401:
+            self.__headers = {
+                "Accept": "application/json",
+                "Authorization": f"Bearer {check_token(request_token=self.__request_token)}",
+            }
+
+            api_response = requests.get(
+                "https://data.rtt.io/data/locations_ungrouped",
+                headers=self.__headers,
+            )
 
         # Set raw to false if a location is given. Otherwise set raw to true
         if location is not None and code is not None:
