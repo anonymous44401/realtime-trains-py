@@ -50,8 +50,6 @@ class AsyncLiveService:
         # Set next update time to now (update instantly)
         next_update: int = int(time.time())
 
-        validate_uid(service_uid)
-
         while True:
             # Update the board every refresh time
             if int(time.time()) == next_update:

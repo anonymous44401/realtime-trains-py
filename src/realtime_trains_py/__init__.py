@@ -386,6 +386,7 @@ class RealtimeTrainsPy:
 
         [Check out the wiki for more examples and information](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
+        validate_uid(service_uid)
 
         self.__live_service.watch_service(
             service_uid=service_uid, mode=_MODE_MAP[mode], refresh=refresh
@@ -419,6 +420,7 @@ class RealtimeTrainsPy:
 
         [Check out the wiki for more examples and information](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
+        validate_uid(service_uid)
 
         await self.__async_live_service.watch_service(
             service_uid=service_uid, mode=_MODE_MAP[mode], refresh=refresh
@@ -451,6 +453,7 @@ class RealtimeTrainsPy:
 
         [Check out the wiki for more examples and information](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
+        return_raw = False
 
         # Send API request
         api_response = requests.get(
@@ -472,15 +475,10 @@ class RealtimeTrainsPy:
         # Set raw to false if a location is given. Otherwise set raw to true
         if location is not None and code is not None:
             raise TooManyArguments(
-                f" Method: 'lookup' only takes one argument. Remove one of: \n - Code: '{code}' \n - Location: '{location}'."
+                f' Method: "lookup" only takes one argument. Remove one of: \n - Code: "{code}" \n - Location: "{location}".'
             )
 
-        elif (location is not None and code is None) or (
-            code is not None and location is None
-        ):
-            return_raw = False
-
-        else:
+        elif code is None and location is None:
             return_raw = True
 
         if api_response.status_code == 200:

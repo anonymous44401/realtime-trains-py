@@ -76,7 +76,7 @@ def create_service_record(
     if complexity == "s":
         if coaches != 0:
             print(
-                f"{service_uid} \n  {start_time} {origin} to {destination} \n  A {operator} service formed of {coaches} coaches.\n\n  Generated at {dt.now().strftime('%H:%M:%S on %d/%m/%y.')}"
+                f"{service_uid} \n  {start_time} {origin} to {destination} \n  {operator} service formed of {coaches} coaches.\n\n  Generated at {dt.now().strftime('%H:%M:%S on %d/%m/%y.')}"
             )
 
         else:

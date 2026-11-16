@@ -7,9 +7,9 @@ from realtime_trains_py.internal.utilities import get_scheduled_time
 def parse_service_data(
     data, type: Literal["calling_point", "station_board"]
 ) -> LocationData:
-    # Parse data from the API response and return a ServiceLocationData data class based on the type parameter.
+    # Parse data from the API response and return a LocationData data class based on the type parameter.
 
-    # Set initial values for the service details, which will be updated if the relevant data exists in the API response
+    # Set initial values for the service details, which will be updated if the relevant data exists in the response
     expected_departure: str = ""
     expected_pass: str = ""
     expected_arrival: str = ""
@@ -18,7 +18,7 @@ def parse_service_data(
     scheduled_pass: str = ""
     scheduled_departure: str = ""
     line: str = ""
-    coaches = 0
+    coaches: int = 0
 
     # Extract the temporal and location data for the service, which contains the details of the departure and arrival times, platform, and coaches.
     temporal_data = data["temporalData"]
@@ -57,10 +57,7 @@ def parse_service_data(
             if expected_arrival == scheduled_arrival:
                 expected_arrival = "On time"
 
-            elif expected_arrival == "":
-                pass
-
-            else:
+            elif expected_arrival != "":
                 expected_arrival = f"Exp {expected_arrival}"
 
     # Extract departure data if it exists
@@ -96,10 +93,7 @@ def parse_service_data(
             if expected_departure == scheduled_departure:
                 expected_departure = "On time"
 
-            elif expected_departure == "":
-                pass
-
-            else:
+            elif expected_departure != "":
                 expected_departure = f"Exp {expected_departure}"
 
     if "pass" in temporal_data:
@@ -108,8 +102,8 @@ def parse_service_data(
                 temporal_data["pass"], "scheduleInternal"
             )
 
-        if temporal_data["pass"]["isCancelled"]:
-            expected_pass = "Cancelled"
+        if "isCancelled" in temporal_data["pass"]:
+            expected_pass = "Cancelled" if temporal_data["pass"]["isCancelled"] else ""
 
         else:
             if "realtimeActual" in temporal_data["pass"]:
@@ -173,7 +167,7 @@ def parse_service_data(
         )
 
     return LocationData(
-        stop_name="-",
+        stop_name="",
         scheduled_arrival=scheduled_arrival,
         scheduled_pass=scheduled_pass,
         scheduled_departure=scheduled_departure,

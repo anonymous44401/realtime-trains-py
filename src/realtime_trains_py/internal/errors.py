@@ -39,14 +39,14 @@ class InvalidTimeProvided(Exception):
 class InvalidTIPLOCProvided(Exception):
     def __init__(self, invalid_item: str) -> None:
         super().__init__(
-            f'\nrealtime-trains-py error:\nThe TIPLOC you provided didn\'t meet the requirements or fall into a valid range. \nGiven: "{invalid_item}" \nExpected: A string with length 3-7 characters (like "SVG", "KNGX" or "CLPHMJN").'
+            f'\nrealtime-trains-py error:\nThe TIPLOC you provided didn\'t meet the requirements or fall into a valid range. \nGiven: "{invalid_item}" \nExpected: A string with length 3-7 characters (like "SVG", "KNGX" or "CLPHMJN"). \nUse the lookup feature to find TIPLOCs'
         )
 
 
 class InvalidUIDProvided(Exception):
     def __init__(self, invalid_item: str) -> None:
         super().__init__(
-            f'\nrealtime-trains-py error:\nThe Service UID you provided didn\'t meet the requirements or fall into a valid range. \nGiven: "{invalid_item}" \nExpected: A string with 5 digits (starting with a capital letter in some cases) (like "A12345" or "12345").'
+            f'\nrealtime-trains-py error:\nThe Service UID you provided didn\'t meet the requirements or fall into a valid range. \nGiven: "{invalid_item}" \nExpected: A string with 5 digits (and starting with a capital letter in some cases) (like "A12345" or "12345").'
         )
 
 
@@ -60,5 +60,5 @@ class NoDataFound(Exception):
 class TooManyArguments(Exception):
     def __init__(self, message: str) -> None:
         super().__init__(
-            f"\nrealtime-trains-py error:\nToo many arguments provided for this method. \n{message}"
+            f"\nrealtime-trains-py error:\nToo many arguments were provided for this method. \n{message}"
         )
