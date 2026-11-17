@@ -22,9 +22,9 @@ Maintained and managed by anonymous4401/anonymous44401
 
 **realtime-trains-py** is an open-source python API Wrapper designed to allow you to access data directly from the Realtime Trains API, in a simple and user-friendly way. This package includes three different [complexity modes](https://github.com/anonymous44401/realtime-trains-py/wiki/Complexity) that allow you to customise how you want to see the data provided by the API.
 
-This package can be used for anything railway related. Whether you're a rail enthusiast or commuter, this package can be used for all your purposes. The package can be used in **personal** applications or for **personal** rail data access. For **commercial** use, you should contact [Realtime Trains](https://www.realtimetrains.co.uk/). More information can be found on their [API home page](https://api-portal.rtt.io/welcome/)
+This package can be used for anything railway related, whether you're a rail enthusiast or commuter. The package can be used in **personal** applications or for **personal** rail data access. For **commercial** use, you should contact [Realtime Trains](https://www.realtimetrains.co.uk/). More information can be found on their [API home page](https://api-portal.rtt.io/welcome/)
 
-This package is not affiliated with [Realtime Trains](https://www.realtimetrains.co.uk/).
+realtime-trains-py is **not** affiliated with [Realtime Trains](https://www.realtimetrains.co.uk/).
 
 ## What can I do with this package?
 
@@ -32,7 +32,7 @@ This package allows you to access data directly from the [Realtime Trains API](h
 
 For the most flexibility, you can use **simple** mode, the recommended mode. Simple mode allows you to access a fair amount of the data available from the Realtime Trains API. This mode is recommended for those that want a manageable amount of information while keeping it easy to read. Use `complexity="simple"`.
 
-Using simple mode, you can optionally select between prettier or normal mode. The default, prettier mode, gives you your data in a nicely formatted table, while normal mode gives you your data as objects, so you'll need to get the data out of the objects yourself. To use normal mode, use `complexity="simple_normal"`. Don't worry though! If you're confused, we have plenty of [documentation](https://github.com/anonymous44401/realtime-trains-py/wiki/Home) to help you out.
+Using simple mode, you can select between prettier or normal mode. The default, prettier mode, gives you your data in a nicely formatted table, while normal mode gives you your data as objects, so you'll need to get the data out of the objects yourself. To use normal mode, use `complexity="simple_normal"`. If you're confused, check out the [documentation](https://github.com/anonymous44401/realtime-trains-py/wiki/Home).
 
 For the most freedom with the API, you can use **complex** mode. Complex mode lets you access all the data available from the Realtime Trains API. This mode does not format any data for you - it creates new `.json` files with the data you requested. This mode is recommended for those who have a good understanding of python and managing json files. Use `complexity="complex"`.
 
@@ -59,11 +59,11 @@ rtt = RealtimeTrainsPy(
 
 Check out our full [setup guide](https://github.com/anonymous44401/realtime-trains-py/wiki/Setup) for more help setting up.
 
-You'll need an account for the [Realtime Trains API](https://api-portal.rtt.io/welcome/) to use this package. You can sign up for free at the [API home page](https://api-portal.rtt.io/welcome/).
+You'll need an account for the [Realtime Trains API](https://api-portal.rtt.io/welcome/) to use this package. You can sign up for free by visiting the [API home page](https://api-portal.rtt.io/welcome/).
 
 ## Examples
 
-#### **NEW!** Watch Service
+#### Watch Service
 
 ###### The example below will display a live service board for G28171.
 
@@ -71,7 +71,7 @@ You'll need an account for the [Realtime Trains API](https://api-portal.rtt.io/w
 rtt.watch_service(service_uid="G28171")
 ```
 
-#### **NEW!** Watch Service (Async)
+#### Watch Service (Async)
 
 ###### The example below will display a live service board for G28171.
 
@@ -80,7 +80,7 @@ import asyncio
 await rtt.watch_service(service_uid="G28171")
 ```
 
-#### **NEW!** Lookup
+#### Lookup
 
 ###### The example below will display all CRS codes and TIPLOCs for London Liverpool Street.
 
@@ -94,7 +94,7 @@ rtt.lookup(location="London Liverpool Street")
 rtt.lookup(code="LST")
 ```
 
-#### **NEW!** Get Live (Async)
+#### Get Live (Async)
 
 ###### The example below will display a live service board for G28171.
 

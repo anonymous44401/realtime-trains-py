@@ -10,6 +10,5 @@ rtt.watch_service("G38953")  # Get live service board for G38953
 
 #### EXAMPLE 2 ####
 
-rtt.watch_service(
-    "G90229", mode="DMI_yellow", refresh=120
-)  # Get live service board for G90229 in DMI (Yellow) mode, refreshing every 120 seconds
+rtt.watch_service("G90229", mode="DMI_yellow", refresh=120)
+# Get live service board for G90229 in DMI (Yellow) mode, refreshing every 120 seconds

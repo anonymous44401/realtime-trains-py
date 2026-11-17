@@ -30,8 +30,7 @@ rtt.lookup(
 rtt.lookup()  # Get a new file with all locations saved
 
 ### EXAMPLE OUTPUT ###
-# Data saved to file:
-#   realtime_trains_py_data/locations_ungrouped_data.json.
+# Will return a json format for all locations and TIPLOCs across the country
 
 
 #### EXAMPLE 4 -- INVALID EXAMPLE ####

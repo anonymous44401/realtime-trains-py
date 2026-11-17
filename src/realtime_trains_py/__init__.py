@@ -59,7 +59,7 @@ class RealtimeTrainsPy:
 
         [Check out the wiki for more examples and information](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
-        self._VERSION = "2027.2.1 [BETA]"
+        self._VERSION = "2027.2.1 [STABLE]"
 
         self.__api_complexity = _COMPLEXITY_MAP[complexity]
         self.__folder = folder
@@ -431,7 +431,7 @@ class RealtimeTrainsPy:
         self,
         location: str | None = None,
         code: str | None = None,
-    ) -> None:
+    ) -> str:
         """
         ## Lookup
 
@@ -492,7 +492,7 @@ class RealtimeTrainsPy:
             elif code is not None:
                 code_lookup(code=code, data=api_response.json())
 
-            return
+            return ""
 
         elif api_response.status_code == 404:
             raise NoDataFound()
