@@ -79,9 +79,9 @@ def calling_point_line(exp_dep: str, sch_dep: str, stop: str, platform: str):
     if "On time" in exp_dep:
         #   ├─ 10:30 Stevenage P3
         #   │
-        return f"  {fmt['white']}├─ {fmt['green']}{sch_dep}{fmt['white']} {exp_dep} {stop} {f"P{platform}" if platform != "-" else ""} \n  │\n"
+        return f"  {fmt['white']}├─ {fmt['green']}{sch_dep}{fmt['white']} {exp_dep} {stop} {f"P{platform}" if platform != "" else ""} \n  │\n"
 
     else:
         #   ├─ 10:30 Cancelled Stevenage P3
         #   │
-        return f"  {fmt['white']}├─ {fmt['grey']}{fmt['s_strike']}{sch_dep}{fmt['e_strike']} {exp_dep}{fmt['white']} {stop} {f"P{platform}" if platform != "-" else ""} \n  │\n"
+        return f"  {fmt['white']}├─ {fmt['grey']}{fmt['s_strike']}{sch_dep}{fmt['e_strike']} {exp_dep}{fmt['white']} {stop} {f"P{platform}" if platform != "" else ""} \n  │\n"
