@@ -59,7 +59,7 @@ class RealtimeTrainsPy:
 
         [Check out the wiki for more examples and information](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
-        self._VERSION = "2027.2.1 [STABLE]"
+        self._VERSION = "2027.2.2 [BETA]"
 
         self.__api_complexity = _COMPLEXITY_MAP[complexity]
         self.__folder = folder
@@ -365,8 +365,6 @@ class RealtimeTrainsPy:
         """
         ## Watch Service
 
-        ### NEW for version 2027.2.0
-
         This function retrieves the service information for a given service UID on a provided date. The service information is updated every 90 seconds.
         To stop watching the service, press Ctrl + C.
 
@@ -399,8 +397,6 @@ class RealtimeTrainsPy:
         """
         ## ASYNC Watch Service
 
-        ### NEW for version 2027.2.0
-
         This function retrieves the service information for a given service UID on a provided date. The service information is updated every 90 seconds.
         To stop watching the service, press Ctrl + C.
 
@@ -428,32 +424,32 @@ class RealtimeTrainsPy:
         )
 
     def lookup(
-        self,
-        location: str | None = None,
-        code: str | None = None,
-    ) -> str:
+        self, raw: bool = False, location: str | None = None, code: str | None = None
+    ) -> dict[str, str] | list[str]:
         """
         ## Lookup
-
-        ### NEW for version 2027.2.0
 
         This function retrieves the CRS and/or TIPLOC codes for a given location.
 
         :param str location: (Optional) A string representing the lookup location.
         :param str code: (Optional) A string representing the lookup CRS code or TIPLOC.
+        :param bool raw: (Optional) A boolean representing whether you want raw data.
 
         ---
         ## Examples
         ```python
-        lookup(location="Stevenage")
+        lookup(location="Stevenage") # Get an output of codes for Stevenage
+        lookup(location="Stevenage", raw=True) # Get a dictionary of CRS codes and TIPLOCs returned
 
-        lookup(code="SVG")
+        lookup(code="SVG") # Get an output of locations for SVG
+        lookup(code="SVG", raw=True) # Get a list of locations for SVG returned
 
         lookup() # Get all CRS and TIPLOCs returned
         ```
 
         [Check out the wiki for more examples and information](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
+
         return_raw = False
 
         # Send API request
@@ -487,12 +483,14 @@ class RealtimeTrainsPy:
                 return api_response.json()
 
             elif location is not None:
-                location_lookup(location=location, data=api_response.json())
+                return location_lookup(
+                    location=location, data=api_response.json(), raw=raw
+                )
 
             elif code is not None:
-                code_lookup(code=code, data=api_response.json())
+                return code_lookup(code=code, data=api_response.json(), raw=raw)
 
-            return ""
+            return []
 
         elif api_response.status_code == 404:
             raise NoDataFound()

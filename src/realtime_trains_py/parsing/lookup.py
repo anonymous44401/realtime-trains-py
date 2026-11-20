@@ -1,7 +1,7 @@
 from typing import Any
 
 
-def location_lookup(location: str, data: Any) -> dict[str, str]:
+def location_lookup(location: str, data: Any, raw: bool) -> dict[str, str]:
     codes: dict[str, str] = {}
 
     # Iterate over each stop. Check if the location is the same as the stop description.
@@ -16,14 +16,14 @@ def location_lookup(location: str, data: Any) -> dict[str, str]:
 
     # If some data has been found, print a list of the CRS codes and TIPLOCs. If no data
     # was found, print a message saying no codes were found.
-    if codes != {}:
+    if codes and not raw:
         print(f"{len(codes)} CRS codes and TIPLOCs for '{location.lower()}':")
         # for code, description in codes:
         for code in codes:
             # print(f"- {code} ({description})")
             print(f"- {code} ({codes.get(code)})")
 
-    else:
+    elif not raw:
         print(
             f"No CRS codes or TIPLOCs found for location '{location.lower()}'. Double check your spelling."
         )
@@ -31,8 +31,8 @@ def location_lookup(location: str, data: Any) -> dict[str, str]:
     return codes
 
 
-def code_lookup(code: str, data: Any) -> list[str]:
-    locations: list = []
+def code_lookup(code: str, data: Any, raw: bool) -> list[str]:
+    locations: list[str] = []
 
     # Iterate over each stop. Check if the code is the same as the stop shortCode or longCode.
     # If they are equal, add the stop description to the locations
@@ -48,12 +48,12 @@ def code_lookup(code: str, data: Any) -> list[str]:
 
     # If some data has been found, print a list of the CRS codes and TIPLOCs. If no data
     # was found, print a message saying no codes were found.
-    if locations != []:
+    if locations and not raw:
         print(f"Location(s) for '{code.upper()}':")
         for location in locations:
             print(f"- {location}")
 
-    else:
+    elif not raw:
         print(
             f"No location(s) found for code '{code.upper()}'. Double check your spelling."
         )

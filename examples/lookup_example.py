@@ -25,6 +25,9 @@ rtt.lookup(
 # - LIVSTLL
 
 
+# You can add `raw=True` to example 1 or example 2 to get a list or dictionary (respectively) returned
+
+
 #### EXAMPLE 3 ####
 
 rtt.lookup()  # Get a new file with all locations saved
