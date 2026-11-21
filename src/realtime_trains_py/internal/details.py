@@ -37,3 +37,10 @@ class ServiceData:
 class DefaultBoard:
     board: list[LocationData]
     location: str
+
+
+# Lookup Data dataclass
+@dataclass(slots=True, frozen=True)
+class LookupData:
+    code: str
+    location: str

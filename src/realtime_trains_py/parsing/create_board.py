@@ -16,11 +16,12 @@ def create_board(service_data, rows, complexity: str, detailed: bool) -> Default
         for service in service_data["services"][:rows]:
             service_info = parse_service_data(service, "station_board")
 
-            if complexity.endswith("n"):
+            if complexity == "a":
                 departure_board.append(service_info)
 
             elif detailed:
-                # Unpack the service details and append them to a list if complexity does not end with n
+                # Unpack the service details and append them to a list if complexity isn't advanced and 
+                # detailed wasn't a parameter
                 departure_board_data.append(
                     [
                         service_info.scheduled_arrival,
@@ -38,7 +39,7 @@ def create_board(service_data, rows, complexity: str, detailed: bool) -> Default
                 )
 
             else:
-                # Unpack the service details and append them to a list if complexity does not end with n
+                # Unpack the service details and append them to a list if complexity isn't a
                 departure_board_data.append(
                     [
                         service_info.scheduled_arrival,
@@ -53,7 +54,7 @@ def create_board(service_data, rows, complexity: str, detailed: bool) -> Default
                     ]
                 )
 
-        if complexity.endswith("n"):
+        if complexity == "a":
             return DefaultBoard(departure_board, requested_location)
 
         # Print the departure info and tabulate table with the headers defined

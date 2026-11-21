@@ -7,7 +7,7 @@ from datetime import datetime as dt
 
 # Import necessary items from other files
 from realtime_trains_py.internal.errors import AuthenticationError
-from realtime_trains_py.internal.utilities import validate_uid, fmt
+from realtime_trains_py.internal.utilities import fmt
 from realtime_trains_py.parsing.create_service import create_service_record
 from realtime_trains_py.parsing.parse_service_board import arrange_output
 
@@ -41,7 +41,7 @@ class LiveService:
             else:
                 self.__headers["Authorization"] = f"Bearer {response.json()['token']}"
 
-    def watch_service(self, service_uid: str, mode: str, refresh: int = 90) -> None:
+    def _watch_service(self, service_uid: str, mode: str, refresh: int = 90) -> None:
         # Output a helpful message to the user: Press Ctrl+C to close live departure board.
         sys.stdout.write(f"{fmt['grey']}Press Ctrl+C to stop watching this service.\n")
         time.sleep(2)

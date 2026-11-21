@@ -2,13 +2,12 @@
 import datetime as dt
 import json
 import re
-import requests
 
-from os import path
+from os import mkdir, path
+from typing import Any
 
 # Import necessary items from other files
 from realtime_trains_py.internal.errors import (
-    AuthenticationError,
     FileWriteError,
     InvalidDateProvided,
     InvalidTimeProvided,
@@ -83,27 +82,15 @@ def check_delay(schedule: str, expected: str):
     )
 
 
-def check_token(request_token: str) -> str:
-    headers = {"Accept": "application/json", "Authorization": f"Bearer {request_token}"}
-
-    # Test the connection by sending a request to the API info endpoint, with the auth
-    # details provided
-    if requests.get("https://data.rtt.io/api/info", headers=headers).status_code != 200:
-        response = requests.get(
-            "https://data.rtt.io/api/get_access_token", headers=headers
-        )
-        if response.status_code != 200:
-            raise AuthenticationError("Request token provided isn't valid.")
-
-        else:
-            return response.json()["token"]
-
-    return request_token
+def check_folder(folder) -> None:
+    if not path.isdir(folder):
+        mkdir(folder)
 
 
-def create_file(name: str, contents) -> None:
+def create_file(folder: str, name: str, contents) -> None:
     # Create file name by adding directory and type
-    file_name: str = f"{name}.json"
+    check_folder(folder)
+    file_name: str = f"{folder}/{name}.json"
 
     # Check if file exists
     if not path.isfile(file_name):
@@ -219,6 +206,25 @@ def get_scheduled_time(data, time) -> str:
     return data.pop(time).split("T")[1][:5]
 
 
+def save_file(
+    file_name: str,
+    data: Any,
+    local_folder: str | None = None,  # Folder provided in method
+    global_folder: str | None = None,  # Folder provided at __init__
+):
+    # If a local folder was provided, save data to the local folder
+    if local_folder:
+        create_file(local_folder, file_name, data)
+
+    # If a global folder was provided, save data to the global folder
+    elif global_folder:
+        create_file(global_folder, file_name, data)
+
+    # If not folder was provided, save data to the default folder
+    else:
+        create_file("realtime_trains_py_data", file_name, data)
+
+
 def validate_date(date: str) -> str:
     # Validate the date provided by the user. The date must be in the format YYYY-MM-DD,
     # and must be a valid date. If the date is not valid, raise an error.
@@ -255,9 +261,11 @@ def validate_tiploc(tiploc: str) -> str:
     return tiploc
 
 
-def validate_uid(uid: str) -> None:
+def validate_uid(uid: str) -> str:
     # Validate the service UID provided by the user. The UID must be a string which
     # can start with a capital letter and must have 5 digits (e.g. A12345 or 12345).
     # If the UID is not valid, raise an error.
     if re.fullmatch("[A-Z]?[0-9]{5}", uid) is None:
         raise InvalidUIDProvided(uid)
+
+    return uid

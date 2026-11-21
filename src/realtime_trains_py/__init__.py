@@ -1,53 +1,56 @@
 # Import external libraries
-import os
-import requests
-
 from datetime import datetime as dt
 from typing import Literal
 
 # Import necessary items from other files
 from realtime_trains_py.async_files.async_live_board import AsyncLiveBoard
 from realtime_trains_py.async_files.async_live_service import AsyncLiveService
-from realtime_trains_py.internal.details import DefaultBoard, ServiceData
+from realtime_trains_py.internal.details import DefaultBoard, LookupData, ServiceData
 from realtime_trains_py.internal.errors import (
     APIResponseError,
-    TooManyArguments,
     NoDataFound,
 )
-from realtime_trains_py.live.live_board import LiveBoard
-from realtime_trains_py.live.live_service import LiveService
+from realtime_trains_py.internal.requests import (
+    get_request,
+    update_headers,
+)
 from realtime_trains_py.internal.utilities import (
-    check_token,
-    create_file,
     create_parameters,
+    save_file,
     validate_date,
     validate_uid,
 )
+from realtime_trains_py.live.live_board import LiveBoard
+from realtime_trains_py.live.live_service import LiveService
 from realtime_trains_py.parsing.create_board import create_board
 from realtime_trains_py.parsing.create_service import create_service_record
-from realtime_trains_py.parsing.lookup import location_lookup, code_lookup
+from realtime_trains_py.parsing.lookup import code_lookup, location_lookup, lookup_check
 
 # Define the complexity and mode types, and their corresponding mappings to the API parameters
-Complexity = Literal["simple", "simple_normal", "complex", "complex_custom"]
+Complexity = Literal["simple", "advanced", "simple_normal", "complex", "complex_custom"]
 Mode = Literal["DMI_yellow", "DMI_white", "LCD"]
 _COMPLEXITY_MAP = {
     "simple": "s",
-    "simple_normal": "s.n",
+    "simple_normal": "a",
+    "advanced": "a",
     "complex": "c",
-    "complex_custom": "c.c",
+    "complex_custom": "c",
 }
 _MODE_MAP = {"DMI_yellow": "DMI.Y", "DMI_white": "DMI.W", "LCD": "LCD"}
 
 
 class RealtimeTrainsPy:
     def __init__(
-        self, request_token: str, complexity: Complexity = "simple", folder: str = ""
+        self,
+        request_token: str,
+        complexity: Complexity = "simple",
+        folder: str | None = None,
     ) -> None:
         """
         :param str request_token: (Required) A string representing your request token for authentication.
-        :param complexity: (Optional) A string representing your chosen complexity level.
-        Choose from: `complex`, `complex_custom`, `simple` or `simple_normal`. If not provided, defaults to `simple`.
-        :param str folder: (Optional) **Only available for complex (custom) mode** A string representing the folder you want the file saved in.
+        :param Literal["simple", "advanced", "complex"] complexity: (Optional) A string representing your chosen complexity level.
+        Choose from: `complex`, `simple` or `simple_normal`. If not provided, defaults to `simple`.
+        :param str folder: (Optional) **Only available for complex mode** A string representing the folder you want the file saved in.
 
         ---
         ## Examples
@@ -59,23 +62,14 @@ class RealtimeTrainsPy:
 
         [Check out the wiki for more examples and information](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
-        self._VERSION = "2027.2.2 [BETA]"
+
+        self._VERSION = "2027.2.2b2 [BETA] (B272220)"
+
+        self.__headers = update_headers(request_token)
 
         self.__api_complexity = _COMPLEXITY_MAP[complexity]
         self.__folder = folder
-
-        if self.__api_complexity == "c":
-            # Check if realtime_trains_py_data folder exists and create it if not
-            if not os.path.isdir("realtime_trains_py_data"):
-                os.mkdir("realtime_trains_py_data")
-
-        self.__headers = {
-            "Accept": "application/json",
-            "Authorization": f"Bearer {check_token(request_token=request_token)}",
-        }
-
         self.__request_token = request_token
-
         self.__live_board = LiveBoard(self.__headers, request_token)
         self.__async_live_board = AsyncLiveBoard(self.__headers, request_token)
         self.__live_service = LiveService(self.__headers, request_token)
@@ -93,7 +87,7 @@ class RealtimeTrainsPy:
         time_to: str | None = None,
         raw: bool = False,
         detailed: bool = False,
-        folder: str = "",
+        folder: str | None = None,
     ) -> DefaultBoard:
         """
         ## Get Departures
@@ -109,7 +103,7 @@ class RealtimeTrainsPy:
         :param str time_to: (Optional) A string representing the end time in the formats HHMM or HH:MM.
         :param bool raw: (Optional) A boolean representing whether you want raw data.
         :param bool detailed: (Optional) A boolean representing whether you want detailed data. This functionality may be limited to your authorisation token.
-        :param str folder: (Optional) **Only available for complex (custom) mode** A string representing the folder you want the file saved in.
+        :param str folder: (Optional) **Only available for complex mode** A string representing the folder you want the file saved in.
 
         ---
         ## Examples
@@ -128,35 +122,21 @@ class RealtimeTrainsPy:
 
         [Check out the wiki for more examples and information](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
+        params = create_parameters(
+            tiploc, filter_from, filter_to, time, date, time_to, date_to, detailed
+        )
 
         # Get the API response using the auth details provided
-        api_response = requests.get(
-            "https://data.rtt.io/rtt/location",
-            headers=self.__headers,
-            params=create_parameters(
-                tiploc, filter_from, filter_to, time, date, time_to, date_to, detailed
-            ),
+        api_response = get_request(
+            "rtt/location", headers=self.__headers, params=params
         )
 
         if api_response.status_code == 401:
-            self.__headers = {
-                "Accept": "application/json",
-                "Authorization": f"Bearer {check_token(request_token=self.__request_token)}",
-            }
+            # If code 401, retry request after updating headers (request token may have expired)
+            self.__headers = update_headers(self.__request_token)
 
-            api_response = requests.get(
-                "https://data.rtt.io/rtt/location",
-                headers=self.__headers,
-                params=create_parameters(
-                    tiploc,
-                    filter_from,
-                    filter_to,
-                    time,
-                    date,
-                    time_to,
-                    date_to,
-                    detailed,
-                ),
+            api_response = get_request(
+                "rtt/location", headers=self.__headers, params=params
             )
 
         if api_response.status_code == 200:
@@ -166,27 +146,13 @@ class RealtimeTrainsPy:
                 return service_data
 
             elif self.__api_complexity == "c":
-                # If complexity is c, save the JSON data to a new .json file in the realtime_trains_py_data folder using the create_file
-                # function and return an empty DefaultBoard data class since the data is saved to a file and not returned as a data class object
-                create_file(
-                    f"realtime_trains_py_data/{tiploc.upper()}_on_{dt.now().strftime('%Y-%m-%d') if date is None else date}_board_data",
-                    service_data,
+                # If complexity is c, save the JSON data to a new .json file using the save_file function
+                save_file(
+                    file_name=f"{tiploc.upper()}_on_{dt.now().strftime('%Y-%m-%d') if date is None else date}_board_data",
+                    data=service_data,
+                    local_folder=folder,
+                    global_folder=self.__folder,
                 )
-
-                return DefaultBoard([], "")
-
-            elif self.__api_complexity == "c.c":
-                # If complexity is c.c, save the JSON data to a new .json file using the create_file
-                # function and return an empty DefaultBoard data class since the data is saved to a file and not returned as a data class object
-                file = f"{tiploc.upper()}_on_{dt.now().strftime('%Y-%m-%d') if date is None else date}_board_data"
-
-                if folder != "":
-                    file = f"{folder}/{file}"
-
-                elif self.__folder != "":
-                    file = f"{self.__folder}/{file}"
-
-                create_file(file, service_data)
 
                 return DefaultBoard([], "")
 
@@ -206,7 +172,7 @@ class RealtimeTrainsPy:
         date: str = dt.now().strftime("%Y-%m-%d"),
         raw: bool = False,
         detailed: bool = False,
-        folder: str = "",
+        folder: str | None = None,
     ) -> ServiceData:
         """
         ## Get Service
@@ -216,7 +182,7 @@ class RealtimeTrainsPy:
         :param str date: (Optional) A string representing the date in the format YYYY-MM-DD.
         :param bool raw: (Optional) A boolean representing whether you want raw data.
         :param bool detailed: (Optional) A boolean representing whether you want detailed data. This functionality may be limited to your authorisation token.
-        :param str folder: (Optional) **Only available for complex (custom) mode** A string representing the folder you want the file saved in.
+        :param str folder: (Optional) **Only available for complex mode** A string representing the folder you want the file saved in.
 
         ---
         ## Examples
@@ -231,30 +197,25 @@ class RealtimeTrainsPy:
         [Check out the wiki for more examples and information](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
 
-        validate_uid(service_uid)
+        params = {
+            "uniqueIdentity": f"gb-nr:{validate_uid(service_uid)}:{validate_date(date)}",
+            "detailed": f"{detailed}",
+        }
 
         # Get the api response using the auth details provided
-        api_response = requests.get(
-            "https://data.rtt.io/rtt/service",
-            params={
-                "uniqueIdentity": f"gb-nr:{service_uid}:{validate_date(date)}",
-                "detailed": f"{detailed}",
-            },
+        api_response = get_request(
+            "rtt/service",
+            params=params,
             headers=self.__headers,
         )
 
         if api_response.status_code == 401:
-            self.__headers = {
-                "Accept": "application/json",
-                "Authorization": f"Bearer {check_token(request_token=self.__request_token)}",
-            }
+            # If code 401, retry request after updating headers (request token may have expired)
+            self.__headers = update_headers(self.__request_token)
 
-            api_response = requests.get(
-                "https://data.rtt.io/rtt/service",
-                params={
-                    "uniqueIdentity": f"gb-nr:{service_uid}:{validate_date(date)}",
-                    "detailed": f"{detailed}",
-                },
+            api_response = get_request(
+                "rtt/service",
+                params=params,
                 headers=self.__headers,
             )
 
@@ -265,26 +226,13 @@ class RealtimeTrainsPy:
                 return service_data
 
             elif self.__api_complexity == "c":
-                # Create a new file
-                create_file(
-                    f"realtime_trains_py_data/{service_uid}_on_{date}_service_data",
-                    service_data,
+                # If complexity is c, save the JSON data to a new .json file using the save_file function
+                save_file(
+                    file_name=f"{service_uid}_on_{date}_service_data",
+                    data=service_data,
+                    local_folder=folder,
+                    global_folder=self.__folder,
                 )
-
-                # Return an empty ServiceData data class since the data is saved to a file and not returned as an object
-                return ServiceData("", "", "", "", [], "", "", 0)
-
-            elif self.__api_complexity == "c.c":
-                # Create a new file
-                file = f"{service_uid}_on_{date}_service_data"
-
-                if folder != "":
-                    file = f"{folder}/{file}"
-
-                elif self.__folder != "":
-                    file = f"{self.__folder}/{file}"
-
-                create_file(file, service_data)
 
                 # Return an empty ServiceData data class since the data is saved to a file and not returned as an object
                 return ServiceData("", "", "", "", [], "", "", 0)
@@ -385,10 +333,9 @@ class RealtimeTrainsPy:
 
         [Check out the wiki for more examples and information](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
-        validate_uid(service_uid)
 
-        self.__live_service.watch_service(
-            service_uid=service_uid, mode=_MODE_MAP[mode], refresh=refresh
+        self.__live_service._watch_service(
+            service_uid=validate_uid(service_uid), mode=_MODE_MAP[mode], refresh=refresh
         )
 
     async def watch_service_async(
@@ -417,23 +364,27 @@ class RealtimeTrainsPy:
 
         [Check out the wiki for more examples and information](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
-        validate_uid(service_uid)
 
-        await self.__async_live_service.watch_service(
-            service_uid=service_uid, mode=_MODE_MAP[mode], refresh=refresh
+        await self.__async_live_service._watch_service(
+            service_uid=validate_uid(service_uid), mode=_MODE_MAP[mode], refresh=refresh
         )
 
     def lookup(
-        self, raw: bool = False, location: str | None = None, code: str | None = None
-    ) -> dict[str, str] | list[str]:
+        self,
+        location: str | None = None,
+        code: str | None = None,
+        raw: bool = False,
+        folder: str | None = None,
+    ) -> list[LookupData] | bool:
         """
         ## Lookup
 
-        This function retrieves the CRS and/or TIPLOC codes for a given location.
+        This function retrieves the CRS codes and/or TIPLOCs for a given location and retrieves the location for a given CRS code or TIPLOC.
 
         :param str location: (Optional) A string representing the lookup location.
         :param str code: (Optional) A string representing the lookup CRS code or TIPLOC.
         :param bool raw: (Optional) A boolean representing whether you want raw data.
+        :param str folder: (Optional) **Only available for complex mode** A string representing the folder you want the file saved in.
 
         ---
         ## Examples
@@ -444,43 +395,44 @@ class RealtimeTrainsPy:
         lookup(code="SVG") # Get an output of locations for SVG
         lookup(code="SVG", raw=True) # Get a list of locations for SVG returned
 
-        lookup() # Get all CRS and TIPLOCs returned
+        lookup() # Get all CRS and TIPLOCs saved to a new json file
         ```
 
         [Check out the wiki for more examples and information](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
 
-        return_raw = False
-
         # Send API request
-        api_response = requests.get(
-            "https://data.rtt.io/data/locations_ungrouped",
+        api_response = get_request(
+            "data/locations_ungrouped",
             headers=self.__headers,
         )
 
         if api_response.status_code == 401:
-            self.__headers = {
-                "Accept": "application/json",
-                "Authorization": f"Bearer {check_token(request_token=self.__request_token)}",
-            }
+            # If code 401, retry request after updating headers (request token may have expired)
+            self.__headers = update_headers(self.__request_token)
 
-            api_response = requests.get(
-                "https://data.rtt.io/data/locations_ungrouped",
+            api_response = get_request(
+                "data/locations_ungrouped",
                 headers=self.__headers,
             )
 
-        # Set raw to false if a location is given. Otherwise set raw to true
-        if location is not None and code is not None:
-            raise TooManyArguments(
-                f' Method: "lookup" only takes one argument. Remove one of: \n - Code: "{code}" \n - Location: "{location}".'
-            )
-
-        elif code is None and location is None:
-            return_raw = True
-
         if api_response.status_code == 200:
-            if return_raw == True:
+            if code is None and location is None:
+                # If a location and code weren't provided, save the JSON data to a new .json file using the save_file function
+                save_file(
+                    file_name=f"{dt.now().strftime('%Y-%m-%d')}_lookup_data",
+                    data=api_response.json(),
+                    local_folder=folder,
+                    global_folder=self.__folder,
+                )
+
+            elif raw and not location and not code:
                 return api_response.json()
+
+            elif location and code:
+                return lookup_check(
+                    code=code, location=location, data=api_response.json(), raw=raw
+                )
 
             elif location is not None:
                 return location_lookup(
@@ -490,7 +442,7 @@ class RealtimeTrainsPy:
             elif code is not None:
                 return code_lookup(code=code, data=api_response.json(), raw=raw)
 
-            return []
+            return [LookupData("", "")]
 
         elif api_response.status_code == 404:
             raise NoDataFound()
