@@ -29,12 +29,12 @@ class LiveBoard:
         # Test the connection by sending a request to the API info endpoint, with the auth details provided
         if (
             self.__session.get(
-                "https://data.rtt.io/api/info", headers=headers
+                "https://data.rtt.io/api/info", headers=headers, timeout=10
             ).status_code
             != 200
         ):
             response = self.__session.get(
-                "https://data.rtt.io/api/get_access_token", headers=headers
+                "https://data.rtt.io/api/get_access_token", headers=headers, timeout=10
             )
             if response.status_code != 200:
                 raise AuthenticationError("Request token provided isn't valid.")
@@ -52,7 +52,7 @@ class LiveBoard:
         while True:
             departure_board: list[LocationData] = []
             # Update the departure board every refresh time
-            if int(time.time()) == next_update:
+            if int(time.time()) >= next_update:
 
                 response = self.__session.get(
                     "https://data.rtt.io/rtt/location",
@@ -62,6 +62,7 @@ class LiveBoard:
                         "detailed": "false",
                     },
                     headers=self.__headers,
+                    timeout=10,
                 )
 
                 if response.status_code == 200:
@@ -117,6 +118,7 @@ class LiveBoard:
                                         "detailed": "false",
                                     },
                                     headers=self.__headers,
+                                    timeout=10,
                                 ).json()["service"],
                                 service=service,
                                 requested_location=requested_location,

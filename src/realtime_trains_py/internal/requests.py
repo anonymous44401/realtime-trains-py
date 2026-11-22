@@ -3,18 +3,21 @@ from requests import get, Response
 from realtime_trains_py.internal.errors import AuthenticationError
 
 URL = "https://data.rtt.io/"
+DEFAULT_TIMEOUT = 10
 
 
 def get_request(
     endpoint: str,
     headers: dict[str, str],
     params: dict[str, str] | None = None,
+    timeout: int | float = DEFAULT_TIMEOUT,
 ) -> Response:
     # Send a request to the api using provided endpoint, headers and parameters
     return get(
         f"{URL}{endpoint}",
         headers=headers,
         params=params,
+        timeout=timeout,
     )
 
 

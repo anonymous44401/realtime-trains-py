@@ -5,18 +5,22 @@ from realtime_trains_py.internal.details import LookupData
 
 def code_lookup(code: str, data: Any, raw: bool) -> list[LookupData]:
     locations: list[LookupData] = []
+    seen: set[str] = set()
 
     # Iterate over each stop. Check if the code is the same as the stop shortCode or longCode.
     # If they are equal, add the stop description to the locations
     for stop in data["locations"]:
-        if stop["longCode"].lower() == code.lower():
-            if stop["description"] not in locations:
-                locations.append(LookupData(code, stop["description"]))
+        matched = False
+        if stop.get("longCode", "").lower() == code.lower():
+            matched = True
+        elif "shortCode" in stop and stop["shortCode"].lower() == code.lower():
+            matched = True
 
-        elif "shortCode" in stop:
-            if stop["shortCode"].lower() == code.lower():
-                if stop["description"] not in locations:
-                    locations.append(LookupData(code, stop["description"]))
+        if matched:
+            description = stop["description"]
+            if description not in seen:
+                seen.add(description)
+                locations.append(LookupData(code, description))
 
     # If some data has been found, print a list of the CRS codes and TIPLOCs. If no data
     # was found, print a message saying no codes were found.
@@ -71,21 +75,20 @@ def lookup_check(code: str, location: str, data: Any, raw: bool) -> bool:
     # If they are the same, check the description against the location. If they match, set the
     # found flag to True and break
     for stop in data["locations"]:
-        if stop["longCode"].lower() == code.lower():
-            if stop["description"] == location:
-                found = True
-                break
+        matched = False
+        if stop.get("longCode", "").lower() == code.lower():
+            matched = True
+        elif "shortCode" in stop and stop["shortCode"].lower() == code.lower():
+            matched = True
 
-        elif "shortCode" in stop:
-            if stop["shortCode"].lower() == code.lower():
-                if stop["description"] == location:
-                    found = True
-                    break
+        if matched and stop["description"].lower() == location.lower():
+            found = True
+            break
 
     # If not raw, output a message stating if the code is a code for the location
     if not raw:
         print(
-            f"{code.upper()} is{"" if found else " not"} a code for {location.lower()}"
+            f"{code.upper()} is{'' if found else ' not'} a code for {location.lower()}"
         )
 
     return found
