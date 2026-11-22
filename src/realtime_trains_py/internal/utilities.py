@@ -87,7 +87,7 @@ def check_folder(folder) -> None:
         mkdir(folder)
 
 
-def create_file(folder: str, name: str, contents) -> None:
+def create_file(folder: str, name: str, contents) -> str:
     # Create file name by adding directory and type
     check_folder(folder)
     file_name: str = f"{folder}/{name}.json"
@@ -96,10 +96,11 @@ def create_file(folder: str, name: str, contents) -> None:
     if not path.isfile(file_name):
         with open(file_name, mode="x", encoding="utf-8") as file:
             json.dump(contents, file, ensure_ascii=False, indent=4)
-            print(f"Data saved to file: \n  {file_name}.")
 
     else:
         raise FileWriteError(file_name)
+
+    return file_name
 
 
 # Create a new search query for board data requests to the API
@@ -211,18 +212,18 @@ def save_file(
     data: Any,
     local_folder: str | None = None,  # Folder provided in method
     global_folder: str | None = None,  # Folder provided at __init__
-):
+) -> str:
     # If a local folder was provided, save data to the local folder
     if local_folder:
-        create_file(local_folder, file_name, data)
+        return create_file(local_folder, file_name, data)
 
     # If a global folder was provided, save data to the global folder
     elif global_folder:
-        create_file(global_folder, file_name, data)
+        return create_file(global_folder, file_name, data)
 
     # If not folder was provided, save data to the default folder
     else:
-        create_file("realtime_trains_py_data", file_name, data)
+        return create_file("realtime_trains_py_data", file_name, data)
 
 
 def validate_date(date: str) -> str:
