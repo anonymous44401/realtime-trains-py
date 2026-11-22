@@ -64,9 +64,14 @@ class LiveService:
                 )
 
                 if response.status_code == 200:
+                    # Create the service record
+                    service_record = create_service_record(
+                        response.json()["service"], service_uid, "s.n"
+                    )
+
                     # Clear the board and arrange the output
                     sys.stdout.write(
-                        f"{fmt['clear']}{arrange_output(service=create_service_record(response.json()["service"], service_uid, "s.n"), mode=mode)}"
+                        f"{fmt['clear']}{arrange_output(service=service_record, mode=mode)}"
                     )
 
                 elif response.status_code == 401:

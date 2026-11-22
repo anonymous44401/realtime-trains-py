@@ -63,10 +63,10 @@ def check_cancel(expected: str, scheduled: str = "", remove_exp: bool = False) -
 
         # Remove "Exp" if applicable then return the value
         if remove_exp:
-            return f"{colour} {expected.split(" ")[-1]} {fmt['white']}"
+            return f"{colour} {expected.split(' ')[-1]} {fmt['white']}"
 
         else:
-            return f"{colour}{expected}{fmt["white"]}"
+            return f"{colour}{expected}{fmt['white']}"
 
     return f"{fmt['yellow']}{expected}{fmt['white']}"
 
