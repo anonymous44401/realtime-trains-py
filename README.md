@@ -20,9 +20,9 @@ Maintained and managed by anonymous4401/anonymous44401
 
 ## About this package
 
-**realtime-trains-py** is an open-source python API Wrapper designed to allow you to access data directly from the Realtime Trains API, in a simple and user-friendly way. This package includes three different [complexity modes](https://github.com/anonymous44401/realtime-trains-py/wiki/Complexity) that allow you to customise how you want to see the data provided by the API.
+**realtime-trains-py** is an open-source Python API wrapper designed to allow you to access data directly from the Realtime Trains API, in a simple and user-friendly way. This package includes three different [complexity modes](https://github.com/anonymous44401/realtime-trains-py/wiki/Complexity) that allow you to customise how you want to see the data provided by the API.
 
-This package can be used for anything railway related, whether you're a rail enthusiast or commuter. The package can be used in **personal** applications or for **personal** rail data access. For **commercial** use, you should contact [Realtime Trains](https://www.realtimetrains.co.uk/). More information can be found on their [API home page](https://api-portal.rtt.io/welcome/)
+This package can be used for anything railway related, whether you're a rail enthusiast or commuter. The package can be used in **personal** applications or for **personal** rail data access. For **commercial** use, you should contact [Realtime Trains](https://www.realtimetrains.co.uk/). More information can be found on their [API home page](https://api-portal.rtt.io/welcome/).
 
 realtime-trains-py is **not** affiliated with [Realtime Trains](https://www.realtimetrains.co.uk/).
 
@@ -32,9 +32,9 @@ This package allows you to access data directly from the [Realtime Trains API](h
 
 For the most flexibility, you can use **simple** mode, the recommended mode. Simple mode allows you to access a fair amount of the data available from the Realtime Trains API. This mode is recommended for those that want a manageable amount of information while keeping it easy to read. Use `complexity="simple"`.
 
-Using simple mode, you can select between prettier or normal mode. The default, prettier mode, gives you your data in a nicely formatted table, while normal mode gives you your data as objects, so you'll need to get the data out of the objects yourself. To use normal mode, use `complexity="simple_normal"`. If you're confused, check out the [documentation](https://github.com/anonymous44401/realtime-trains-py/wiki/Home).
+Using simple mode, you can select between prettier or normal mode. The default, prettier mode, gives you your data in a nicely formatted table, while normal mode gives you your data as objects, so you'll need to get the data out of the objects yourself. To use normal mode, use `complexity="simple_normal"` (or `complexity="advanced"`). If you're confused, check out the [documentation](https://github.com/anonymous44401/realtime-trains-py/wiki/Home).
 
-For the most freedom with the API, you can use **complex** mode. Complex mode lets you access all the data available from the Realtime Trains API. This mode does not format any data for you - it creates new `.json` files with the data you requested. This mode is recommended for those who have a good understanding of python and managing json files. Use `complexity="complex"`.
+For the most freedom with the API, you can use **complex** mode. Complex mode lets you access all the data available from the Realtime Trains API. This mode does not format any data for you - it creates new `.json` files with the data you requested. This mode is recommended for those who have a good understanding of Python and managing JSON files. Use `complexity="complex"`.
 
 ## Installation Instructions
 
@@ -77,7 +77,7 @@ rtt.watch_service(service_uid="G28171")
 
 ```python
 import asyncio
-await rtt.watch_service(service_uid="G28171")
+await rtt.watch_service_async(service_uid="G28171")
 ```
 
 #### Lookup
@@ -96,11 +96,11 @@ rtt.lookup(code="LST")
 
 #### Get Live (Async)
 
-###### The example below will display a live service board for G28171.
+###### The example below will display a live departure board for Ely.
 
 ```python
 import asyncio
-await rtt.watch_service(service_uid="G28171")
+await rtt.get_live_async(tiploc="ELYY")
 ```
 
 #### Get Live

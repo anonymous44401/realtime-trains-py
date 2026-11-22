@@ -20,12 +20,12 @@ rtt.lookup(
 
 ### EXAMPLE OUTPUT ###
 # 3 CRS codes and TIPLOCs for 'london liverpool street':
-# - LST
-# - LIVST
-# - LIVSTLL
+# - LST (London Liverpool Street)
+# - LIVST (London Liverpool Street)
+# - LIVSTLL (London Liverpool Street)
 
 
-# You can add `raw=True` to example 1 or example 2 to get a list or dictionary (respectively) returned
+# You can add `raw=True` to example 1 or example 2 to get a list of LookupData objects returned
 
 
 #### EXAMPLE 3 ####
@@ -36,15 +36,10 @@ rtt.lookup()  # Get a new file with all locations saved
 # Will return a json format for all locations and TIPLOCs across the country
 
 
-#### EXAMPLE 4 -- INVALID EXAMPLE ####
+#### EXAMPLE 4 ####
 
+# Check if a code matches a given location
 rtt.lookup(location="London Kings Cross", code="KNGX")
-# Returns an error. DO NOT use this implementation.
 
 ### EXAMPLE OUTPUT ###
-# realtime_trains_py.internal.errors.TooManyArguments:
-# realtime-trains-py error:
-# Too too many arguments provided for this method.
-#  Method: 'lookup' only takes one argument. Remove one of:
-#  - Code: 'KNGX'
-#  - Location: 'London Kings Cross'.
+# KNGX is a code for london kings cross
