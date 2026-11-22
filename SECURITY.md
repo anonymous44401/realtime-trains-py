@@ -1,8 +1,8 @@
-# Security Policy:
+# Security Policy
 
 ## Supported Versions of realtime-trains-py
 
-We release updates and patches regularly. Below are the versions of this project that are actively supported and maintained. If a version isn't shown in this table, then it is no longer supported. Specific versions that will no longer be supported in the next few months will be shown too.
+We release updates and patches regularly. Below are the versions of this project that are actively supported and maintained. If a version isn't shown in this table, then it is no longer supported. Specific versions that will no longer be supported in the next few months will also be shown.
 
 | Version (realtime-trains-py) | Supported                    |
 | ---------------------------- | ---------------------------- |
@@ -15,7 +15,7 @@ If you are using an unsupported version, please upgrade to a supported version t
 
 We take the security of the realtime-trains-py package seriously. If you discover a security vulnerability, please report it as soon as possible by emailing **[anonymous4401.ad@gmail.com](mailto:anonymous4401.ad@gmail.com)**.
 
-Ensure you include the details of the issue. Include the following information in your report:
+Please include the following information in your report:
 
 - A detailed description of the vulnerability.
 - Steps to reproduce the issue.
@@ -33,7 +33,7 @@ After confirming the issue, we will:
 
 ## Security Updates
 
-We will post updates about resolved security vulnerabilities in the **[releases section of this repository.](https://github.com/anonymous44401/realtime-trains-py/releases)**
+We will post updates about resolved security vulnerabilities in the **[releases section of this repository](https://github.com/anonymous44401/realtime-trains-py/releases)**.
 
 ## Scope
 

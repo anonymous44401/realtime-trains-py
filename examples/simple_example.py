@@ -65,7 +65,7 @@ rtt.get_departures(tiploc="HULL", date="2026-05-20", time="1000", rows=10)
 
 #### EXAMPLE 3 ####
 
-# Query for getting the details of the service with service_uid "W47587"
+# Query for getting the details of the service with service_uid "C11143"
 rtt.get_service("C11143")
 
 ### EXAMPLE OUTPUT ###
