@@ -63,10 +63,10 @@ def check_cancel(expected: str, scheduled: str = "", remove_exp: bool = False) -
 
         # Remove "Exp" if applicable then return the value
         if remove_exp:
-            return f"{colour} {expected.split(" ")[-1]} {fmt['white']}"
+            return f"{colour} {expected.split(' ')[-1]} {fmt['white']}"
 
         else:
-            return f"{colour}{expected}{fmt["white"]}"
+            return f"{colour}{expected}{fmt['white']}"
 
     return f"{fmt['yellow']}{expected}{fmt['white']}"
 
@@ -74,12 +74,19 @@ def check_cancel(expected: str, scheduled: str = "", remove_exp: bool = False) -
 def check_delay(schedule: str, expected: str):
     # Check the time between the scheduled and expected times in seconds. Return the
     # integer value of this delay
-    return int(
+    delay = int(
         (
             dt.datetime.strptime(expected, "%H:%M")
             - dt.datetime.strptime(schedule, "%H:%M")
         ).total_seconds()
     )
+
+    if delay < -43200:
+        delay += 86400
+    elif delay > 43200:
+        delay -= 86400
+
+    return delay
 
 
 def check_folder(folder) -> None:
@@ -140,24 +147,24 @@ def create_parameters(
     if time_from:
         parameters["timeFrom"] = f" {validate_time(time_from)}"
 
+        # If there was no date, prepend the current date to timeFrom
+        if not date_from:
+            parameters["timeFrom"] = (
+                dt.datetime.now().strftime("%Y-%m-%d") + parameters["timeFrom"]
+            )
+
     # If there was a date, validate the date and add the previously defined value of
     # timeFrom if a time was provided. If not, use 0000
     if date_from:
         parameters["timeFrom"] = (
             validate_date(date_from)
-            + f" {parameters["timeFrom"] if time_from else "0000"}"
+            + (parameters["timeFrom"] if time_from else " 0000")
         )
 
         if not time_to and not time_from and not date_to:
             parameters["timeTo"] = f"{validate_date(date_from)} 2359"
 
             return parameters
-
-    # If there was no date, prepend the current date to timeFrom
-    else:
-        parameters["timeFrom"] = (
-            dt.datetime.now().strftime("%Y-%m-%d") + parameters["timeFrom"]
-        )
 
     # If neither a date or time were provided, set the timeFrom to now
     if not time_from and not date_from:
@@ -180,7 +187,7 @@ def create_parameters(
     # timeTo if a time was provided. If not, use 0000
     if date_to:
         parameters["timeTo"] = (
-            validate_date(date_to) + f" {parameters["timeTo"] if time_to else "0000"}"
+            validate_date(date_to) + f" {parameters['timeTo'] if time_to else '0000'}"
         )
 
     # If there was no date, prepend the date provided previously (in timeFrom) to timeTo
@@ -189,7 +196,7 @@ def create_parameters(
             dt.datetime.strptime(parameters["timeFrom"], "%Y-%m-%d %H%M").strftime(
                 "%Y-%m-%d"
             )
-            + f" {parameters["timeTo"]}"
+            + (f" {parameters['timeTo']}" if time_to else "")
         )
 
     # If neither a date or time were provided, set the timeTo to 4 hours from the date

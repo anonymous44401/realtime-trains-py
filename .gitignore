@@ -1,7 +1,6 @@
 .home
 .vscode
 data/
-tests/
 secrets/*
 testing/*
 

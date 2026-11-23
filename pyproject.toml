@@ -38,6 +38,14 @@ dependencies = [
   "tabulate>=0.9.0",
 ]
 
+[project.optional-dependencies]
+test = [
+  "pytest>=8.0.0",
+]
+dev = [
+  "pytest>=8.0.0",
+]
+
 [project.urls]
 Repository = "https://github.com/anonymous44401/realtime-trains-py"
 Documentation = "https://github.com/anonymous44401/realtime-trains-py/wiki"
@@ -47,3 +55,7 @@ Issues = "https://github.com/anonymous44401/realtime-trains-py/issues"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

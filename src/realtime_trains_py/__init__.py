@@ -1,6 +1,6 @@
 # Import external libraries
 from datetime import datetime as dt
-from typing import Literal
+from typing import Literal, Any
 
 # Import necessary items from other files
 from realtime_trains_py.async_files.async_live_board import AsyncLiveBoard
@@ -49,7 +49,7 @@ class RealtimeTrainsPy:
         """
         :param str request_token: (Required) A string representing your request token for authentication.
         :param Literal["simple", "advanced", "complex"] complexity: (Optional) A string representing your chosen complexity level.
-        Choose from: `complex`, `simple` or `simple_normal`. If not provided, defaults to `simple`.
+        Choose from: `complex`, `simple` or `advanced`. If not provided, defaults to `simple`.
         :param str folder: (Optional) **Only available for complex mode** A string representing the folder you want the file saved in.
 
         ---
@@ -98,7 +98,7 @@ class RealtimeTrainsPy:
         :param str filter_to: (Optional) A string representing the Timing Point Location Code (TIPLOC) or Computer Reservation Code (CRS) of the destination station.
         :param str date: (Optional) A string representing the start date in the format YYYY-MM-DD.
         :param str date_to: (Optional) A string representing the end date in the format YYYY-MM-DD.
-        :param int rows: (Optional) An integer representing the maximum number of rows to return. (Only available for simple complexity.)
+        :param int rows: (Optional) An integer representing the maximum number of rows to return. (Only available for simple and advanced complexity.)
         :param str time: (Optional) A string representing the start time in the formats HHMM or HH:MM.
         :param str time_to: (Optional) A string representing the end time in the formats HHMM or HH:MM.
         :param bool raw: (Optional) A boolean representing whether you want raw data.
@@ -290,9 +290,9 @@ class RealtimeTrainsPy:
         ---
         ## Examples
         ```python
-        get_live(tiploc="ELYY") # Live board for Ely
+        await rtt.get_live_async(tiploc="ELYY") # Live board for Ely
 
-        get_live(tiploc="PBRO", mode="DMI_yellow") # Live board for Peterborough, with mode set to DMI (Yellow)
+        await rtt.get_live_async(tiploc="PBRO", mode="DMI_yellow") # Live board for Peterborough, with mode set to DMI (Yellow)
         ```
 
         [Check out the wiki for more examples and information](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
@@ -352,9 +352,9 @@ class RealtimeTrainsPy:
         ---
         ## Examples
         ```python
-        watch_service(service_uid="G54071") # Watch G54071
+        await rtt.watch_service_async(service_uid="G54071") # Watch G54071
 
-        watch_service(service_uid="G26171") # Watch G26171
+        await rtt.watch_service_async(service_uid="G26171") # Watch G26171
         ```
 
         [Check out the wiki for more examples and information](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
@@ -370,7 +370,7 @@ class RealtimeTrainsPy:
         code: str | None = None,
         raw: bool = False,
         folder: str | None = None,
-    ) -> list[LookupData] | bool | str:
+    ) -> list[LookupData] | bool | str | dict[str, Any]:
         """
         ## Lookup
 
@@ -385,10 +385,10 @@ class RealtimeTrainsPy:
         ## Examples
         ```python
         lookup(location="Stevenage") # Get an output of codes for Stevenage
-        lookup(location="Stevenage", raw=True) # Get a dictionary of CRS codes and TIPLOCs returned
+        lookup(location="Stevenage", raw=True) # Get a list of LookupData objects returned
 
         lookup(code="SVG") # Get an output of locations for SVG
-        lookup(code="SVG", raw=True) # Get a list of locations for SVG returned
+        lookup(code="SVG", raw=True) # Get a list of LookupData objects returned
 
         lookup() # Get all CRS and TIPLOCs saved to a new json file
         ```
@@ -412,7 +412,10 @@ class RealtimeTrainsPy:
             )
 
         if api_response.status_code == 200:
-            if code is None and location is None:
+            if raw and not location and not code:
+                return api_response.json()
+
+            elif code is None and location is None:
                 # If a location and code weren't provided, save the JSON data to a new .json file using the save_file function
                 return save_file(
                     file_name=f"{dt.now().strftime('%Y-%m-%d')}_lookup_data",
@@ -420,9 +423,6 @@ class RealtimeTrainsPy:
                     local_folder=folder,
                     global_folder=self.__folder,
                 )
-
-            elif raw and not location and not code:
-                return api_response.json()
 
             elif location and code:
                 return lookup_check(
