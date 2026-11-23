@@ -1,6 +1,8 @@
 # Import external libraries
 from datetime import datetime as dt
-from typing import Literal, Any
+from types import TracebackType
+from typing import Any, Literal
+import requests
 
 # Import necessary items from other files
 from realtime_trains_py.async_files.async_live_board import AsyncLiveBoard
@@ -8,9 +10,14 @@ from realtime_trains_py.async_files.async_live_service import AsyncLiveService
 from realtime_trains_py.internal.details import DefaultBoard, LookupData, ServiceData
 from realtime_trains_py.internal.errors import (
     APIResponseError,
+    HTTPConnectionError,
+    HTTPTimeoutError,
+    HTTPTransportError,
     NoDataFound,
 )
 from realtime_trains_py.internal.requests import (
+    DEFAULT_TIMEOUT,
+    HTTPTransport as _HTTPTransport,
     get_request,
     update_headers,
 )
@@ -65,15 +72,47 @@ class RealtimeTrainsPy:
 
         self._VERSION = "2027.2.2b2 [BETA] (B272221)"
 
-        self.__headers = update_headers(request_token)
+        self.__transport = _HTTPTransport()
+        try:
+            self.__headers = update_headers(
+                request_token,
+                transport=self.__transport,
+            )
+            self.__api_complexity = _COMPLEXITY_MAP[complexity]
+            self.__folder = folder
+            self.__request_token = request_token
+            self.__live_board = LiveBoard(self.__headers, request_token)
+            self.__async_live_board = AsyncLiveBoard(self.__headers, request_token)
+            self.__live_service = LiveService(self.__headers, request_token)
+            self.__async_live_service = AsyncLiveService(self.__headers, request_token)
+        except Exception:
+            self.__transport.close()
+            raise
 
-        self.__api_complexity = _COMPLEXITY_MAP[complexity]
-        self.__folder = folder
-        self.__request_token = request_token
-        self.__live_board = LiveBoard(self.__headers, request_token)
-        self.__async_live_board = AsyncLiveBoard(self.__headers, request_token)
-        self.__live_service = LiveService(self.__headers, request_token)
-        self.__async_live_service = AsyncLiveService(self.__headers, request_token)
+    def _refresh_headers(self) -> None:
+        """Refresh authorization headers in-place when a token expires."""
+        new_headers = update_headers(
+            self.__request_token,
+            transport=self.__transport,
+        )
+        self.__headers.update(new_headers)
+
+    def close(self) -> None:
+        """Close the underlying HTTP transport session."""
+        self.__transport.close()
+
+    def __enter__(self) -> "RealtimeTrainsPy":
+        if self.__transport.is_closed:
+            raise HTTPTransportError("Cannot enter a closed RealtimeTrainsPy client.")
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
+        self.close()
 
     def get_departures(
         self,
@@ -127,22 +166,20 @@ class RealtimeTrainsPy:
         )
 
         # Get the API response using the auth details provided
-        api_response = get_request(
+        api_response = self.__transport.get(
             "rtt/location", headers=self.__headers, params=params
         )
 
         if api_response.status_code == 401:
-            # If code 401, retry request after updating headers (request token may have expired)
-            self.__headers = update_headers(self.__request_token)
-
-            api_response = get_request(
+            self._refresh_headers()
+            api_response = self.__transport.get(
                 "rtt/location", headers=self.__headers, params=params
             )
 
         if api_response.status_code == 200:
             service_data = api_response.json()
 
-            if raw == True:
+            if raw:
                 return service_data
 
             elif self.__api_complexity == "c":
@@ -201,17 +238,15 @@ class RealtimeTrainsPy:
         }
 
         # Get the api response using the auth details provided
-        api_response = get_request(
+        api_response = self.__transport.get(
             "rtt/service",
             params=params,
             headers=self.__headers,
         )
 
         if api_response.status_code == 401:
-            # If code 401, retry request after updating headers (request token may have expired)
-            self.__headers = update_headers(self.__request_token)
-
-            api_response = get_request(
+            self._refresh_headers()
+            api_response = self.__transport.get(
                 "rtt/service",
                 params=params,
                 headers=self.__headers,
@@ -220,7 +255,7 @@ class RealtimeTrainsPy:
         if api_response.status_code == 200:
             service_data = api_response.json()["service"]
 
-            if raw == True:
+            if raw:
                 return service_data
 
             elif self.__api_complexity == "c":
@@ -397,45 +432,42 @@ class RealtimeTrainsPy:
         """
 
         # Send API request
-        api_response = get_request(
+        api_response = self.__transport.get(
             "data/locations_ungrouped",
             headers=self.__headers,
         )
 
         if api_response.status_code == 401:
             # If code 401, retry request after updating headers (request token may have expired)
-            self.__headers = update_headers(self.__request_token)
+            self._refresh_headers()
 
-            api_response = get_request(
+            api_response = self.__transport.get(
                 "data/locations_ungrouped",
                 headers=self.__headers,
             )
 
         if api_response.status_code == 200:
+            data = api_response.json()
             if raw and not location and not code:
-                return api_response.json()
+                return data
 
             elif code is None and location is None:
                 # If a location and code weren't provided, save the JSON data to a new .json file using the save_file function
                 return save_file(
                     file_name=f"{dt.now().strftime('%Y-%m-%d')}_lookup_data",
-                    data=api_response.json(),
+                    data=data,
                     local_folder=folder,
                     global_folder=self.__folder,
                 )
 
             elif location and code:
-                return lookup_check(
-                    code=code, location=location, data=api_response.json(), raw=raw
-                )
+                return lookup_check(code=code, location=location, data=data, raw=raw)
 
             elif location is not None:
-                return location_lookup(
-                    location=location, data=api_response.json(), raw=raw
-                )
+                return location_lookup(location=location, data=data, raw=raw)
 
             elif code is not None:
-                return code_lookup(code=code, data=api_response.json(), raw=raw)
+                return code_lookup(code=code, data=data, raw=raw)
 
             return [LookupData("", "")]
 
@@ -446,3 +478,37 @@ class RealtimeTrainsPy:
             raise APIResponseError(
                 f"Failed to connect to the RTT API server: {api_response.status_code} \nResponse message: {api_response.text}"
             )
+
+
+__all__ = [
+    # Core client and live monitors
+    "RealtimeTrainsPy",
+    "LiveBoard",
+    "LiveService",
+    "AsyncLiveBoard",
+    "AsyncLiveService",
+    # Public types and data models
+    "Complexity",
+    "Mode",
+    "DefaultBoard",
+    "LookupData",
+    "ServiceData",
+    # Legacy helper and utility functions
+    "get_request",
+    "update_headers",
+    "create_parameters",
+    "save_file",
+    "validate_date",
+    "validate_uid",
+    "create_board",
+    "create_service_record",
+    "code_lookup",
+    "location_lookup",
+    "lookup_check",
+    # Error and exception classes
+    "APIResponseError",
+    "HTTPConnectionError",
+    "HTTPTimeoutError",
+    "HTTPTransportError",
+    "NoDataFound",
+]
