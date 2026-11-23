@@ -10,7 +10,11 @@ MOCK_LOOKUP_PAYLOAD = {
     "locations": [
         {"longCode": "STEVNGE", "shortCode": "SVG", "description": "Stevenage"},
         {"longCode": "STEVNGE", "description": "Stevenage"},  # Duplicate entry
-        {"longCode": "LIVST", "shortCode": "LST", "description": "London Liverpool Street"},
+        {
+            "longCode": "LIVST",
+            "shortCode": "LST",
+            "description": "London Liverpool Street",
+        },
         {"longCode": "LIVSTLL", "description": "London Liverpool Street"},
         {"longCode": "KNGX", "shortCode": "KGX", "description": "London Kings Cross"},
     ]
@@ -51,11 +55,14 @@ class TestLookupCheck:
         assert lookup_check("svg", "Stevenage", MOCK_LOOKUP_PAYLOAD, raw=True) is True
 
     def test_non_matching_pair(self):
-        assert lookup_check("SVG", "London Kings Cross", MOCK_LOOKUP_PAYLOAD, raw=True) is False
+        assert (
+            lookup_check("SVG", "London Kings Cross", MOCK_LOOKUP_PAYLOAD, raw=True)
+            is False
+        )
 
 
 class TestRealtimeTrainsPyLookup:
-    @patch("realtime_trains_py.internal.requests.get")
+    @patch("realtime_trains_py.internal.requests.HTTPTransport.get")
     def test_lookup_raw_true_unreachable_branch_fixed(self, mock_get):
         # Mock auth check and data request
         auth_resp = MagicMock(status_code=200)
@@ -66,8 +73,8 @@ class TestRealtimeTrainsPyLookup:
 
         mock_get.side_effect = [auth_resp, data_resp]
 
-        rtt = RealtimeTrainsPy(request_token="token123")
-        res = rtt.lookup(raw=True)
+        with RealtimeTrainsPy(request_token="token123") as rtt:
+            res = rtt.lookup(raw=True)
 
         # Must return the raw dictionary, not [LookupData("", "")]
         assert isinstance(res, dict)
@@ -75,7 +82,7 @@ class TestRealtimeTrainsPyLookup:
         assert res["locations"] == MOCK_LOOKUP_PAYLOAD["locations"]
 
     @patch("realtime_trains_py.save_file")
-    @patch("realtime_trains_py.internal.requests.get")
+    @patch("realtime_trains_py.internal.requests.HTTPTransport.get")
     def test_lookup_saves_file_when_not_raw(self, mock_get, mock_save):
         auth_resp = MagicMock(status_code=200)
         data_resp = MagicMock(status_code=200)
@@ -84,8 +91,8 @@ class TestRealtimeTrainsPyLookup:
 
         mock_save.return_value = "realtime_trains_py_data/2026-11-23_lookup_data.json"
 
-        rtt = RealtimeTrainsPy(request_token="token123")
-        res = rtt.lookup(raw=False)
+        with RealtimeTrainsPy(request_token="token123") as rtt:
+            res = rtt.lookup(raw=False)
 
         mock_save.assert_called_once()
         assert res == "realtime_trains_py_data/2026-11-23_lookup_data.json"

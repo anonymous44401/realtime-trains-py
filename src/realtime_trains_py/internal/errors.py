@@ -22,6 +22,22 @@ class FileWriteError(Exception):
         )
 
 
+class HTTPTransportError(Exception):
+    def __init__(self, message: str, prefix: str = "HTTP transport error") -> None:
+        self.message = message
+        super().__init__(f"\nrealtime-trains-py error:\n{prefix}: \n{message}")
+
+
+class HTTPConnectionError(HTTPTransportError):
+    def __init__(self, message: str) -> None:
+        super().__init__(message, prefix="Failed to connect to the RTT API server")
+
+
+class HTTPTimeoutError(HTTPTransportError):
+    def __init__(self, message: str) -> None:
+        super().__init__(message, prefix="Request to the RTT API timed out")
+
+
 class InvalidDateProvided(Exception):
     def __init__(self, invalid_item: str) -> None:
         super().__init__(

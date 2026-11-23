@@ -1,8 +1,8 @@
-name: Tests
+name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, "feat/**", "fix/**"]
   pull_request:
     branches: [main]
 
@@ -10,7 +10,40 @@ permissions:
   contents: read
 
 jobs:
+  quality:
+    name: Code Quality & Security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install development dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run Ruff Lint
+        run: python -m ruff check .
+
+      - name: Run Ruff Format Check
+        run: python -m ruff format --check src/realtime_trains_py/__init__.py src/realtime_trains_py/internal/errors.py src/realtime_trains_py/internal/requests.py tests/test_lookup.py tests/test_transport.py
+
+      - name: Run Mypy Type Check
+        run: python -m mypy src/realtime_trains_py
+
+      - name: Run Dependency Audit
+        run: python -m pip_audit
+
+      - name: Verify Package Build
+        run: python -m build
+
   test:
+    name: Test (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -24,11 +57,19 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: "pip"
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[test]"
 
-      - name: Run tests
-        run: pytest
+      - name: Run test suite with coverage
+        run: python -m pytest --cov=realtime_trains_py --cov-report=term-missing --cov-report=xml
+
+      - name: Upload coverage report
+        if: matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
