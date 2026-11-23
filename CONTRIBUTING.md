@@ -1,6 +1,6 @@
 # Contributing to realtime-trains-py <!-- and realtime-trains-rs -->
 
-## Guidelines:
+## Guidelines
 
 If you would like to contribute to _realtime-trains-py_ <!-- or _realtime-trains-rs_ --> by submitting a pull request, please ensure that your local copy of the repository is **thoroughly reviewed** and **free of any sensitive or personal information**. This includes, but is not limited to, usernames, passwords, API keys, or any other credentials that might compromise your security or the integrity of the repository.
 
@@ -12,11 +12,11 @@ By following these guidelines, you help keep the project secure and maintain a p
 ## Support
 
 You can ask for support with your contributions in the Discord server. The roadmap contains features currently being worked on, therefore pull requests adding these features or enhancements are unlikely to be merged.
-If you'd like to provide suggestions, use the Discord sever or create an issue on this repository.
+If you'd like to provide suggestions, use the Discord server or create an issue on this repository.
 
 ## How to Contribute
 
-Contributing is super easy. Follow the steps below
+Contributing is super easy. Follow the steps below:
 
 1. Make sure you have forked and cloned the repository
 2. Set up the repository as detailed in the setup guides in the wiki
@@ -33,4 +33,4 @@ Please report bugs in the issues section of the repository.
 
 If you have any questions regarding contributing, please speak to the repository maintainers.
 
-Thank you for your support with realtime-trains-py and realtime-trains-rs
+Thank you for your support with realtime-trains-py.

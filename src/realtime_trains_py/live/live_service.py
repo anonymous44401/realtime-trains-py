@@ -66,7 +66,7 @@ class LiveService:
                 if response.status_code == 200:
                     # Create the service record
                     service_record = create_service_record(
-                        response.json()["service"], service_uid, "s.n"
+                        response.json()["service"], service_uid, "a"
                     )
 
                     # Clear the board and arrange the output

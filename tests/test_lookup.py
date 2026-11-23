@@ -82,8 +82,10 @@ class TestRealtimeTrainsPyLookup:
         data_resp.json.return_value = MOCK_LOOKUP_PAYLOAD
         mock_get.side_effect = [auth_resp, data_resp]
 
+        mock_save.return_value = "realtime_trains_py_data/2026-11-23_lookup_data.json"
+
         rtt = RealtimeTrainsPy(request_token="token123")
         res = rtt.lookup(raw=False)
 
         mock_save.assert_called_once()
-        assert res == [LookupData("", "")]
+        assert res == "realtime_trains_py_data/2026-11-23_lookup_data.json"

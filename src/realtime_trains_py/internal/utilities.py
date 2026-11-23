@@ -94,7 +94,7 @@ def check_folder(folder) -> None:
         mkdir(folder)
 
 
-def create_file(folder: str, name: str, contents) -> None:
+def create_file(folder: str, name: str, contents) -> str:
     # Create file name by adding directory and type
     check_folder(folder)
     file_name: str = f"{folder}/{name}.json"
@@ -103,10 +103,11 @@ def create_file(folder: str, name: str, contents) -> None:
     if not path.isfile(file_name):
         with open(file_name, mode="x", encoding="utf-8") as file:
             json.dump(contents, file, ensure_ascii=False, indent=4)
-            print(f"Data saved to file: \n  {file_name}.")
 
     else:
         raise FileWriteError(file_name)
+
+    return file_name
 
 
 # Create a new search query for board data requests to the API
@@ -144,26 +145,26 @@ def create_parameters(
 
     # If there was a time, validate the time and set the value
     if time_from:
-        parameters["timeFrom"] = validate_time(time_from)
+        parameters["timeFrom"] = f" {validate_time(time_from)}"
+
+        # If there was no date, prepend the current date to timeFrom
+        if not date_from:
+            parameters["timeFrom"] = (
+                dt.datetime.now().strftime("%Y-%m-%d") + parameters["timeFrom"]
+            )
 
     # If there was a date, validate the date and add the previously defined value of
     # timeFrom if a time was provided. If not, use 0000
     if date_from:
         parameters["timeFrom"] = (
             validate_date(date_from)
-            + f" {parameters['timeFrom'] if time_from else '0000'}"
+            + (parameters["timeFrom"] if time_from else " 0000")
         )
 
         if not time_to and not time_from and not date_to:
             parameters["timeTo"] = f"{validate_date(date_from)} 2359"
 
             return parameters
-
-    # If there was no date, prepend the current date to timeFrom
-    elif time_from:
-        parameters["timeFrom"] = (
-            dt.datetime.now().strftime("%Y-%m-%d") + f" {parameters['timeFrom']}"
-        )
 
     # If neither a date or time were provided, set the timeFrom to now
     if not time_from and not date_from:
@@ -218,18 +219,18 @@ def save_file(
     data: Any,
     local_folder: str | None = None,  # Folder provided in method
     global_folder: str | None = None,  # Folder provided at __init__
-):
+) -> str:
     # If a local folder was provided, save data to the local folder
     if local_folder:
-        create_file(local_folder, file_name, data)
+        return create_file(local_folder, file_name, data)
 
     # If a global folder was provided, save data to the global folder
     elif global_folder:
-        create_file(global_folder, file_name, data)
+        return create_file(global_folder, file_name, data)
 
     # If not folder was provided, save data to the default folder
     else:
-        create_file("realtime_trains_py_data", file_name, data)
+        return create_file("realtime_trains_py_data", file_name, data)
 
 
 def validate_date(date: str) -> str:

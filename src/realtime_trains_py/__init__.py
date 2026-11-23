@@ -48,8 +48,8 @@ class RealtimeTrainsPy:
     ) -> None:
         """
         :param str request_token: (Required) A string representing your request token for authentication.
-        :param Literal["simple", "advanced", "simple_normal", "complex"] complexity: (Optional) A string representing your chosen complexity level.
-        Choose from: `complex`, `simple`, `simple_normal` or `advanced`. If not provided, defaults to `simple`.
+        :param Literal["simple", "advanced", "complex"] complexity: (Optional) A string representing your chosen complexity level.
+        Choose from: `complex`, `simple` or `advanced`. If not provided, defaults to `simple`.
         :param str folder: (Optional) **Only available for complex mode** A string representing the folder you want the file saved in.
 
         ---
@@ -63,7 +63,7 @@ class RealtimeTrainsPy:
         [Check out the wiki for more examples and information](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
 
-        self._VERSION = "2027.2.2b2 [BETA] (B272220)"
+        self._VERSION = "2027.2.2b2 [BETA] (B272221)"
 
         self.__headers = update_headers(request_token)
 
@@ -88,7 +88,7 @@ class RealtimeTrainsPy:
         raw: bool = False,
         detailed: bool = False,
         folder: str | None = None,
-    ) -> DefaultBoard:
+    ) -> DefaultBoard | str:
         """
         ## Get Departures
         This function retrieves the departures and arrivals for a given station.
@@ -98,7 +98,7 @@ class RealtimeTrainsPy:
         :param str filter_to: (Optional) A string representing the Timing Point Location Code (TIPLOC) or Computer Reservation Code (CRS) of the destination station.
         :param str date: (Optional) A string representing the start date in the format YYYY-MM-DD.
         :param str date_to: (Optional) A string representing the end date in the format YYYY-MM-DD.
-        :param int rows: (Optional) An integer representing the maximum number of rows to return. (Only available for simple and advanced/simple_normal complexity.)
+        :param int rows: (Optional) An integer representing the maximum number of rows to return. (Only available for simple and advanced complexity.)
         :param str time: (Optional) A string representing the start time in the formats HHMM or HH:MM.
         :param str time_to: (Optional) A string representing the end time in the formats HHMM or HH:MM.
         :param bool raw: (Optional) A boolean representing whether you want raw data.
@@ -147,14 +147,12 @@ class RealtimeTrainsPy:
 
             elif self.__api_complexity == "c":
                 # If complexity is c, save the JSON data to a new .json file using the save_file function
-                save_file(
+                return save_file(
                     file_name=f"{tiploc.upper()}_on_{dt.now().strftime('%Y-%m-%d') if date is None else date}_board_data",
                     data=service_data,
                     local_folder=folder,
                     global_folder=self.__folder,
                 )
-
-                return DefaultBoard([], "")
 
             return create_board(service_data, rows, self.__api_complexity, detailed)
 
@@ -173,7 +171,7 @@ class RealtimeTrainsPy:
         raw: bool = False,
         detailed: bool = False,
         folder: str | None = None,
-    ) -> ServiceData:
+    ) -> ServiceData | str:
         """
         ## Get Service
         This function retrieves the service information for a given service UID on a provided date.
@@ -227,15 +225,12 @@ class RealtimeTrainsPy:
 
             elif self.__api_complexity == "c":
                 # If complexity is c, save the JSON data to a new .json file using the save_file function
-                save_file(
+                return save_file(
                     file_name=f"{service_uid}_on_{date}_service_data",
                     data=service_data,
                     local_folder=folder,
                     global_folder=self.__folder,
                 )
-
-                # Return an empty ServiceData data class since the data is saved to a file and not returned as an object
-                return ServiceData("", "", "", "", [], "", "", 0)
 
             return create_service_record(
                 service_data, service_uid, self.__api_complexity
@@ -375,7 +370,7 @@ class RealtimeTrainsPy:
         code: str | None = None,
         raw: bool = False,
         folder: str | None = None,
-    ) -> list[LookupData] | bool | dict[str, Any]:
+    ) -> list[LookupData] | bool | str | dict[str, Any]:
         """
         ## Lookup
 
@@ -422,13 +417,12 @@ class RealtimeTrainsPy:
 
             elif code is None and location is None:
                 # If a location and code weren't provided, save the JSON data to a new .json file using the save_file function
-                save_file(
+                return save_file(
                     file_name=f"{dt.now().strftime('%Y-%m-%d')}_lookup_data",
                     data=api_response.json(),
                     local_folder=folder,
                     global_folder=self.__folder,
                 )
-                return [LookupData("", "")]
 
             elif location and code:
                 return lookup_check(
