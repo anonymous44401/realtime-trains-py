@@ -1,12 +1,11 @@
 # Import external libraries
 import sys
 import time
-import requests
 
 from datetime import datetime as dt
 
 # Import necessary items from other files
-from realtime_trains_py.internal.errors import AuthenticationError
+from realtime_trains_py.internal.requests import RequestSession
 from realtime_trains_py.internal.utilities import fmt
 from realtime_trains_py.parsing.create_service import create_service_record
 from realtime_trains_py.parsing.parse_service_board import arrange_output
@@ -15,30 +14,7 @@ from realtime_trains_py.parsing.parse_service_board import arrange_output
 class LiveService:
     # Take the request token and the token to create a new request token when the old request token expires
     def __init__(self, request_token: str) -> None:
-        self.__session = requests.Session()
-        self.__request_token = request_token
-
-    def __update_api_request_token(self) -> None:
-        headers = {
-            "Accept": "application/json",
-            "Authorization": f"Bearer {self.__request_token}",
-        }
-
-        # Test the connection by sending a request to the API info endpoint, with the auth details provided
-        if (
-            self.__session.get(
-                "https://data.rtt.io/api/info", headers=headers, timeout=10
-            ).status_code
-            != 200
-        ):
-            response = self.__session.get(
-                "https://data.rtt.io/api/get_access_token", headers=headers, timeout=10
-            )
-            if response.status_code != 200:
-                raise AuthenticationError("Request token provided isn't valid.")
-
-            else:
-                self.__headers["Authorization"] = f"Bearer {response.json()['token']}"
+        self.__session = RequestSession(request_token)
 
     def _watch_service(self, service_uid: str, mode: str, refresh: int = 90) -> None:
         # Output a helpful message to the user: Press Ctrl+C to close live departure board.
@@ -53,12 +29,11 @@ class LiveService:
             if int(time.time()) >= next_update:
 
                 # Send API request
-                response = self.__session.get(
-                    "https://data.rtt.io/rtt/service",
+                response = self.__session.get_request(
+                    "rtt/service",
                     params={
                         "uniqueIdentity": f"gb-nr:{service_uid}:{dt.now().strftime('%Y-%m-%d')}"
                     },
-                    headers=self.__headers,
                     timeout=10,
                 )
 
@@ -75,7 +50,7 @@ class LiveService:
 
                 elif response.status_code == 401:
                     # Check the request token and update the headers with the new token
-                    self.__update_api_request_token()
+                    self.__session._update_headers()
 
                     next_update = int(time.time())
                     continue

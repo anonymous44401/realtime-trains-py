@@ -64,7 +64,7 @@ class RealtimeTrainsPy:
 
         self.__api_complexity = _COMPLEXITY_MAP[complexity]
         self.__folder = folder
-        self.__request_token = request_token
+        self.__session = RequestSession(request_token)
         self.__live_board = LiveBoard(request_token)
         self.__async_live_board = AsyncLiveBoard(request_token)
         self.__live_service = LiveService(request_token)
@@ -122,17 +122,13 @@ class RealtimeTrainsPy:
         )
 
         # Get the API response using the auth details provided
-        api_response = get_request(
-            "rtt/location", headers=self.__headers, params=params
-        )
+        api_response = self.__session.get_request("rtt/location", params=params)
 
         if api_response.status_code == 401:
             # If code 401, retry request after updating headers (request token may have expired)
-            self.__headers = _update_headers(self.__request_token)
+            self.__session._update_headers()
 
-            api_response = get_request(
-                "rtt/location", headers=self.__headers, params=params
-            )
+            api_response = self.__session.get_request("rtt/location", params=params)
 
         if api_response.status_code == 200:
             service_data = api_response.json()
@@ -196,21 +192,13 @@ class RealtimeTrainsPy:
         }
 
         # Get the api response using the auth details provided
-        api_response = get_request(
-            "rtt/service",
-            params=params,
-            headers=self.__headers,
-        )
+        api_response = self.__session.get_request("rtt/service", params=params)
 
         if api_response.status_code == 401:
             # If code 401, retry request after updating headers (request token may have expired)
-            self.__headers = _update_headers(self.__request_token)
+            self.__session._update_headers()
 
-            api_response = get_request(
-                "rtt/service",
-                params=params,
-                headers=self.__headers,
-            )
+            api_response = self.__session.get_request("rtt/service", params=params)
 
         if api_response.status_code == 200:
             service_data = api_response.json()["service"]
@@ -392,19 +380,15 @@ class RealtimeTrainsPy:
         """
 
         # Send API request
-        api_response = get_request(
+        api_response = self.__session.get_request(
             "data/locations_ungrouped",
-            headers=self.__headers,
         )
 
         if api_response.status_code == 401:
             # If code 401, retry request after updating headers (request token may have expired)
-            self.__headers = _update_headers(self.__request_token)
+            self.__session._update_headers()
 
-            api_response = get_request(
-                "data/locations_ungrouped",
-                headers=self.__headers,
-            )
+            api_response = self.__session.get_request("data/locations_ungrouped")
 
         if api_response.status_code == 200:
             if raw and not location and not code:

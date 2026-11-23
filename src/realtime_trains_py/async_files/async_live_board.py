@@ -2,13 +2,12 @@
 import asyncio
 import sys
 import time
-import requests
 
 from datetime import datetime as dt
 
 # Import necessary items from other files
 from realtime_trains_py.internal.details import LocationData
-from realtime_trains_py.internal.errors import AuthenticationError
+from realtime_trains_py.internal.requests import RequestSession
 from realtime_trains_py.internal.utilities import check_cancel, validate_tiploc, fmt
 from realtime_trains_py.parsing.live_first_service import first_service
 from realtime_trains_py.parsing.parse_service_data import parse_service_data
@@ -17,30 +16,7 @@ from realtime_trains_py.parsing.parse_service_data import parse_service_data
 class AsyncLiveBoard:
     # Take the request token and the token to create a new request token when the old request token expires
     def __init__(self, request_token: str) -> None:
-        self.__session = requests.Session()
-        self.__request_token = request_token
-
-    async def __update_api_request_token(self) -> None:
-        headers = {
-            "Accept": "application/json",
-            "Authorization": f"Bearer {self.__request_token}",
-        }
-
-        # Test the connection by sending a request to the API info endpoint, with the auth details provided
-        if (
-            self.__session.get(
-                "https://data.rtt.io/api/info", headers=headers, timeout=10
-            ).status_code
-            != 200
-        ):
-            response = self.__session.get(
-                "https://data.rtt.io/api/get_access_token", headers=headers, timeout=10
-            )
-            if response.status_code != 200:
-                raise AuthenticationError("Request token provided isn't valid.")
-
-            else:
-                self.__headers["Authorization"] = f"Bearer {response.json()['token']}"
+        self.__session = RequestSession(request_token)
 
     async def _get_live(self, tiploc: str, mode: str = "LCD", refresh=90) -> None:
         # Output a helpful message to the user: Press Ctrl+C to close live departure board.
@@ -54,14 +30,13 @@ class AsyncLiveBoard:
             # Update the departure board every refresh time
             if int(time.time()) >= next_update:
 
-                response = self.__session.get(
-                    "https://data.rtt.io/rtt/location",
+                response = self.__session.get_request(
+                    "rtt/location",
                     params={
                         "code": f"gb-nr:{validate_tiploc(tiploc)}",
                         "timeTolerance": "false",
                         "detailed": "false",
                     },
-                    headers=self.__headers,
                     timeout=10,
                 )
 
@@ -110,14 +85,13 @@ class AsyncLiveBoard:
                             # Get the details of the first service, including subsequent calling points, service operator and number of coaches if available
                             line_two = first_service(
                                 # Service data request
-                                all_service_data=self.__session.get(
-                                    "https://data.rtt.io/rtt/service",
+                                all_service_data=self.__session.get_request(
+                                    "rtt/service",
                                     params={
                                         "uniqueIdentity": f"gb-nr:{service.service_uid}:{dt.now().strftime('%Y-%m-%d')}",
                                         "timeTolerance": "false",
                                         "detailed": "false",
                                     },
-                                    headers=self.__headers,
                                     timeout=10,
                                 ).json()["service"],
                                 service=service,
@@ -150,7 +124,7 @@ class AsyncLiveBoard:
 
                 elif response.status_code == 401:
                     # Check the request token and update the headers with the new token
-                    await self.__update_api_request_token()
+                    self.__session._update_headers()
 
                     next_update = int(time.time())
                     continue

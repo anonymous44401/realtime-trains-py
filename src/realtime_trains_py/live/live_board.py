@@ -6,7 +6,6 @@ from datetime import datetime as dt
 
 # Import necessary items from other files
 from realtime_trains_py.internal.details import LocationData
-from realtime_trains_py.internal.errors import AuthenticationError
 from realtime_trains_py.internal.requests import RequestSession
 from realtime_trains_py.internal.utilities import check_cancel, validate_tiploc, fmt
 from realtime_trains_py.parsing.live_first_service import first_service
