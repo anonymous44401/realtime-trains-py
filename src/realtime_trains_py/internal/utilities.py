@@ -156,9 +156,8 @@ def create_parameters(
     # If there was a date, validate the date and add the previously defined value of
     # timeFrom if a time was provided. If not, use 0000
     if date_from:
-        parameters["timeFrom"] = (
-            validate_date(date_from)
-            + (parameters["timeFrom"] if time_from else " 0000")
+        parameters["timeFrom"] = validate_date(date_from) + (
+            parameters["timeFrom"] if time_from else " 0000"
         )
 
         if not time_to and not time_from and not date_to:
@@ -192,12 +191,9 @@ def create_parameters(
 
     # If there was no date, prepend the date provided previously (in timeFrom) to timeTo
     else:
-        parameters["timeTo"] = (
-            dt.datetime.strptime(parameters["timeFrom"], "%Y-%m-%d %H%M").strftime(
-                "%Y-%m-%d"
-            )
-            + (f" {parameters['timeTo']}" if time_to else "")
-        )
+        parameters["timeTo"] = dt.datetime.strptime(
+            parameters["timeFrom"], "%Y-%m-%d %H%M"
+        ).strftime("%Y-%m-%d") + (f" {parameters['timeTo']}" if time_to else "")
 
     # If neither a date or time were provided, set the timeTo to 4 hours from the date
     # provided previously (in timeFrom)
