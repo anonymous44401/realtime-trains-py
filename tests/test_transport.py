@@ -252,21 +252,12 @@ class TestHTTPTransportLifecycle:
 
 
 class TestRealtimeTrainsPyTransportIntegration:
-    @pytest.fixture(autouse=True)
-    def mock_auth_headers(self):
-        """Mock update_headers by default so tests don't perform network calls on client init."""
-        with patch("realtime_trains_py.update_headers") as mock:
-            mock.return_value = {
-                "Accept": "application/json",
-                "Authorization": "Bearer tok",
-            }
-            yield mock
-
     def test_session_reuse_across_api_methods(self):
         mock_session = MagicMock(spec=requests.Session)
-        mock_response = MagicMock(status_code=200)
-        mock_response.json.return_value = {"locations": []}
-        mock_session.request.return_value = mock_response
+        auth_resp = MagicMock(status_code=200)
+        data_resp = MagicMock(status_code=200)
+        data_resp.json.return_value = {"locations": []}
+        mock_session.request.side_effect = [auth_resp, data_resp, data_resp]
 
         with patch(
             "realtime_trains_py.internal.requests.requests.Session",
@@ -276,19 +267,26 @@ class TestRealtimeTrainsPyTransportIntegration:
                 rtt.lookup(raw=True)
                 rtt.lookup(raw=True)
 
-        assert mock_session.request.call_count == 2
+        assert mock_session.request.call_count == 3
 
     def test_close_and_context_manager(self):
-        with RealtimeTrainsPy(request_token="dummy") as rtt:
-            assert not rtt._RealtimeTrainsPy__transport.is_closed
+        mock_session = MagicMock(spec=requests.Session)
+        mock_session.request.return_value = MagicMock(status_code=200)
+        with patch(
+            "realtime_trains_py.internal.requests.requests.Session",
+            return_value=mock_session,
+        ):
+            with RealtimeTrainsPy(request_token="dummy") as rtt:
+                assert not rtt._RealtimeTrainsPy__transport.is_closed
 
-        assert rtt._RealtimeTrainsPy__transport.is_closed
+            assert rtt._RealtimeTrainsPy__transport.is_closed
 
     def test_client_requests_use_default_timeout(self):
         mock_session = MagicMock(spec=requests.Session)
+        auth_resp = MagicMock(status_code=200)
         dept_resp = MagicMock(status_code=200)
         dept_resp.json.return_value = {"services": []}
-        mock_session.request.return_value = dept_resp
+        mock_session.request.side_effect = [auth_resp, dept_resp]
 
         with patch(
             "realtime_trains_py.internal.requests.requests.Session",
@@ -301,11 +299,12 @@ class TestRealtimeTrainsPyTransportIntegration:
 
     def test_get_departures_and_service_use_transport(self):
         mock_session = MagicMock(spec=requests.Session)
+        auth_resp = MagicMock(status_code=200)
         dept_resp = MagicMock(status_code=200)
         dept_resp.json.return_value = {"services": []}
         service_resp = MagicMock(status_code=200)
         service_resp.json.return_value = {"service": {}}
-        mock_session.request.side_effect = [dept_resp, service_resp]
+        mock_session.request.side_effect = [auth_resp, dept_resp, service_resp]
 
         with patch(
             "realtime_trains_py.internal.requests.requests.Session",
@@ -315,22 +314,39 @@ class TestRealtimeTrainsPyTransportIntegration:
                 rtt.get_departures("KNGX", raw=True)
                 rtt.get_service("G12345", raw=True)
 
-        assert mock_session.request.call_count == 2
+        assert mock_session.request.call_count == 3
         calls = mock_session.request.call_args_list
-        assert calls[0].kwargs["url"] == "https://data.rtt.io/rtt/location"
-        assert calls[1].kwargs["url"] == "https://data.rtt.io/rtt/service"
+        assert calls[0].kwargs["url"] == "https://data.rtt.io/api/info"
+        assert calls[1].kwargs["url"] == "https://data.rtt.io/rtt/location"
+        assert calls[2].kwargs["url"] == "https://data.rtt.io/rtt/service"
 
-    def test_401_retry_uses_transport(self, mock_auth_headers):
-        mock_auth_headers.side_effect = [
-            {"Accept": "application/json", "Authorization": "Bearer tok1"},
-            {"Accept": "application/json", "Authorization": "Bearer tok2"},
-        ]
+    def test_401_retry_uses_transport(self):
+        tokens_issued = ["tok1", "tok2"]
+        location_auth_headers = []
+
+        def mock_request(method, url, headers=None, params=None, timeout=None):
+            if "api/info" in url:
+                return MagicMock(status_code=401)
+            if "api/get_access_token" in url:
+                tok = tokens_issued.pop(0) if tokens_issued else "tok2"
+                resp = MagicMock(status_code=200)
+                resp.json.return_value = {
+                    "token": tok,
+                    "validUntil": "2026-11-25T14:00:00Z",
+                }
+                return resp
+            if "rtt/location" in url:
+                if headers:
+                    location_auth_headers.append(headers.get("Authorization"))
+                if headers and headers.get("Authorization") == "Bearer tok1":
+                    return MagicMock(status_code=401)
+                resp = MagicMock(status_code=200)
+                resp.json.return_value = {"services": []}
+                return resp
+            return MagicMock(status_code=200)
 
         mock_session = MagicMock(spec=requests.Session)
-        resp_401 = MagicMock(status_code=401)
-        resp_200 = MagicMock(status_code=200)
-        resp_200.json.return_value = {"services": []}
-        mock_session.request.side_effect = [resp_401, resp_200]
+        mock_session.request.side_effect = mock_request
 
         with patch(
             "realtime_trains_py.internal.requests.requests.Session",
@@ -340,14 +356,14 @@ class TestRealtimeTrainsPyTransportIntegration:
                 res = rtt.get_departures("KNGX", raw=True)
                 assert res == {"services": []}
 
-        assert mock_session.request.call_count == 2
-        assert mock_auth_headers.call_count == 2
+        # Verify retry occurred through the same transport with renewed bearer token
+        assert location_auth_headers == ["Bearer tok1", "Bearer tok2"]
 
     def test_transport_timeout_bubbles_up(self):
         mock_session = MagicMock(spec=requests.Session)
-        mock_session.request.side_effect = requests.exceptions.ConnectTimeout(
-            "Timed out connecting"
-        )
+        auth_resp = MagicMock(status_code=200)
+        timeout_exc = requests.exceptions.ConnectTimeout("Timed out connecting")
+        mock_session.request.side_effect = [auth_resp, timeout_exc]
 
         with patch(
             "realtime_trains_py.internal.requests.requests.Session",
@@ -358,28 +374,46 @@ class TestRealtimeTrainsPyTransportIntegration:
                     rtt.get_departures("KNGX")
 
     def test_entering_closed_client_raises(self):
-        rtt = RealtimeTrainsPy(request_token="dummy")
-        rtt.close()
-
-        with pytest.raises(
-            HTTPTransportError, match="Cannot enter a closed RealtimeTrainsPy client"
+        mock_session = MagicMock(spec=requests.Session)
+        mock_session.request.return_value = MagicMock(status_code=200)
+        with patch(
+            "realtime_trains_py.internal.requests.requests.Session",
+            return_value=mock_session,
         ):
-            with rtt:
-                pass
+            rtt = RealtimeTrainsPy(request_token="dummy")
+            rtt.close()
 
-    def test_401_retry_updates_shared_headers_in_place(self, mock_auth_headers):
-        initial_headers = {"Accept": "application/json", "Authorization": "Bearer tok1"}
-        refreshed_headers = {
-            "Accept": "application/json",
-            "Authorization": "Bearer tok2",
-        }
-        mock_auth_headers.side_effect = [initial_headers, refreshed_headers]
+            with pytest.raises(
+                HTTPTransportError,
+                match="Cannot enter a closed RealtimeTrainsPy client",
+            ):
+                with rtt:
+                    pass
+
+    def test_401_retry_updates_shared_headers_in_place(self):
+        tokens_issued = ["tok1", "tok2"]
+
+        def mock_request(method, url, headers=None, params=None, timeout=None):
+            if "api/info" in url:
+                return MagicMock(status_code=401)
+            if "api/get_access_token" in url:
+                tok = tokens_issued.pop(0) if tokens_issued else "tok2"
+                resp = MagicMock(status_code=200)
+                resp.json.return_value = {
+                    "token": tok,
+                    "validUntil": "2026-11-25T14:00:00Z",
+                }
+                return resp
+            if "rtt/location" in url:
+                if headers and headers.get("Authorization") == "Bearer tok1":
+                    return MagicMock(status_code=401)
+                resp = MagicMock(status_code=200)
+                resp.json.return_value = {"services": []}
+                return resp
+            return MagicMock(status_code=200)
 
         mock_session = MagicMock(spec=requests.Session)
-        resp_401 = MagicMock(status_code=401)
-        resp_200 = MagicMock(status_code=200)
-        resp_200.json.return_value = {"services": []}
-        mock_session.request.side_effect = [resp_401, resp_200]
+        mock_session.request.side_effect = mock_request
 
         with patch(
             "realtime_trains_py.internal.requests.requests.Session",
@@ -397,7 +431,7 @@ class TestRealtimeTrainsPyTransportIntegration:
 
 
 class TestUpdateHeadersHelper:
-    def test_update_headers_delegates_to_auth_manager(self):
+    def test_update_headers_delegates_to_transport(self):
         mock_transport = MagicMock(spec=HTTPTransport)
         info_resp = MagicMock(status_code=200)
         mock_transport.get.return_value = info_resp

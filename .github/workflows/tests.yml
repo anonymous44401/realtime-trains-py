@@ -31,7 +31,7 @@ jobs:
         run: python -m ruff check .
 
       - name: Run Ruff Format Check
-        run: python -m ruff format --check src/realtime_trains_py/internal tests/test_transport.py tests/test_lookup.py
+        run: python -m ruff format --check src/realtime_trains_py/__init__.py src/realtime_trains_py/internal/errors.py src/realtime_trains_py/internal/requests.py tests/test_lookup.py tests/test_transport.py
 
       - name: Run Mypy Type Check
         run: python -m mypy src/realtime_trains_py
