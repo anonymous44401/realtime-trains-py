@@ -63,7 +63,7 @@ class RealtimeTrainsPy:
         [Check out the wiki for more examples and information](https://github.com/anonymous44401/realtime-trains-py/wiki) | [Join the discord](https://discord.gg/invite/Kv2FAn7SVf)
         """
 
-        self._VERSION = "2027.2.2b2 [BETA] (B272221)"
+        self._VERSION = "2027.2.2b2 [BETA] (B272229)"
 
         self.__headers = update_headers(request_token)
 
