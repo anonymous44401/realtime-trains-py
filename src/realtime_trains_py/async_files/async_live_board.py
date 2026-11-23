@@ -16,8 +16,7 @@ from realtime_trains_py.parsing.parse_service_data import parse_service_data
 
 class AsyncLiveBoard:
     # Take the request token and the token to create a new request token when the old request token expires
-    def __init__(self, headers: dict[str, str], request_token: str) -> None:
-        self.__headers = headers
+    def __init__(self, request_token: str) -> None:
         self.__session = requests.Session()
         self.__request_token = request_token
 
